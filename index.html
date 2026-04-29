@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0e1a;--bg2:#0e1828;--bg3:#131f30;--border:#1e2a42;--text:#e8eaf0;--muted:#5a6a8a;--accent:#3a7aff;--accent2:#20b8c0;--green:#30c080;--amber:#f0a020}
+body{font-family:sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+h2{font-size:12px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#4a5a7a;margin-bottom:10px}
+
+/* HERO */
+.hero{text-align:center;padding:32px 24px 16px;background:linear-gradient(180deg,#0d1526 0%,var(--bg) 100%);position:relative}
+.hero h1{font-size:24px;font-weight:600;letter-spacing:.04em;color:#e0eaff;margin-bottom:4px}
+.hero .sub{font-size:12px;color:#4a5a7a;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.hero p{font-size:13px;color:#5a6a8a;max-width:460px;margin:4px auto 0}
+
+/* FULLSCREEN BTN */
+#fsBtn{position:absolute;top:16px;right:16px;background:var(--bg3);border:1px solid var(--border);color:#7a9acc;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+#fsBtn:hover{background:var(--bg2);color:#aac4ff}
+body.fs-mode .hero{padding-top:48px}
+body.fs-mode #fsBtn{position:fixed;top:12px;right:12px;z-index:999}
+
+/* TABS */
+.tabs{display:flex;justify-content:center;gap:6px;padding:14px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:10;background:var(--bg)}
+.tab{padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:#5a6a8a;transition:all .2s}
+.tab:hover{color:#aac4ff;border-color:#2a3a64}
+.tab.active{background:#1a2744;border-color:#3a5aaa;color:#aac4ff}
+
+/* PANELS */
+.panel{display:none;padding:22px 24px 32px;max-width:900px;margin:0 auto}
+.panel.active{display:block}
+
+/* === LAYER VIZ === */
+.road{position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;cursor:pointer;user-select:none;border:1px solid var(--border)}
+.layer{position:absolute;left:0;right:0;display:flex;align-items:center;padding:0 18px;transition:background .3s;border-bottom:1px solid rgba(255,255,255,.04)}
+.layer .lnum{font-size:11px;color:#3a4a6a;min-width:20px}
+.layer .lname{font-size:13px;font-weight:500;color:#c8d8f8;min-width:150px}
+.layer .ldesc{font-size:12px;color:#4a5a7a;flex:1;padding:0 10px}
+.layer .lbadge{font-size:11px;padding:3px 10px;border-radius:10px;background:#1a2744;color:#7aacff;border:1px solid #2a3a64;white-space:nowrap}
+.layer.hi .lname{color:#e0f0ff}
+.l1{top:0;height:25%;background:#141e30}
+.l2{top:25%;height:25%;background:#0f1c2e}
+.l3{top:50%;height:25%;background:#0b182a}
+.l4{top:75%;height:25%;background:#081426}
+.l1.hi{background:#1e3060}.l2.hi{background:#1a2c50}.l3.hi{background:#14243e}.l4.hi{background:#0e1a2e}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:10px;flex-shrink:0;animation:pulse 2s infinite}
+.pulse.amber{background:var(--amber)}.pulse.green{background:var(--green)}.pulse.teal{background:var(--accent2)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+#layer-detail{margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;min-height:80px}
+
+/* === SIM === */
+.road-sim{position:relative;width:100%;height:190px;background:#080e1a;border-radius:12px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
+.road-surface{position:absolute;bottom:0;width:100%;height:60px;background:#111824;border-top:2px solid #1e2840}
+.road-dash{position:absolute;bottom:28px;height:2px;background:#2a4080;animation:dash 1.2s linear infinite}
+@keyframes dash{from{left:-20%;width:15%}to{left:100%;width:15%}}
+.car{position:absolute;bottom:56px;width:68px;height:34px;transition:left .05s linear}
+.car-body{width:68px;height:30px;background:#3a7aff;border-radius:8px 12px 6px 6px;position:relative}
+.car-roof{position:absolute;top:-11px;left:14px;width:36px;height:15px;background:#2a5acc;border-radius:6px 6px 0 0}
+.car-wheel{position:absolute;bottom:-6px;width:13px;height:13px;background:#111;border-radius:50%;border:2px solid #333}
+.car-wheel.l{left:8px}.car-wheel.r{right:8px}
+.charge-zone{position:absolute;top:0;bottom:56px;width:18%;background:rgba(58,122,255,.07);border-left:1px dashed rgba(58,122,255,.25);border-right:1px dashed rgba(58,122,255,.25);transition:left .05s linear}
+.charge-label{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s;white-space:nowrap}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.stat .val{font-size:22px;font-weight:600;color:#aac4ff;margin-bottom:2px}
+.stat .lbl{font-size:11px;color:var(--muted)}
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{padding:7px 16px;border-radius:8px;border:1px solid #2a3a64;background:#1a2744;color:#aac4ff;font-size:12px;cursor:pointer;transition:all .2s}
+.btn:hover{background:#223466;border-color:#3a5aaa}
+input[type=range]{flex:1;min-width:100px;accent-color:var(--accent)}
+.rl{font-size:12px;color:var(--muted);min-width:70px}
+.rv{font-size:12px;color:#aac4ff;min-width:48px}
+
+/* === DAS === */
+.das-wrap{background:#050c18;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.das-road{position:relative;height:90px;background:#080e1a;border-bottom:1px solid var(--border)}
+.fiber{position:absolute;bottom:20px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#20b8c080,#20b8c0,#20b8c080,transparent)}
+.das-event{position:absolute;bottom:18px;width:6px;height:6px;border-radius:50%;transform:translateX(-50%);opacity:0;transition:opacity .3s}
+.das-road-line{position:absolute;bottom:0;left:0;right:0;height:20px;background:#0d1828;border-top:2px solid #1e2840}
+.das-chart{padding:14px 16px}
+.das-chart-title{font-size:11px;color:var(--muted);margin-bottom:8px}
+.wave-canvas{width:100%;height:60px;border-radius:6px;background:#050c18;display:block}
+.das-events{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.das-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .2s}
+.das-card:hover{border-color:#2a5aaa}
+.das-card .dc-icon{font-size:18px;margin-bottom:4px}
+.das-card .dc-name{font-size:12px;color:#c8d8f8;font-weight:500;margin-bottom:2px}
+.das-card .dc-val{font-size:11px;color:var(--muted)}
+.das-card.active{border-color:var(--accent2);background:#0f1e2e}
+
+/* === TEG HEAT === */
+.teg-wrap{background:#050c18;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.teg-canvas{width:100%;height:200px;display:block}
+.teg-ctrl{padding:12px 16px;display:flex;gap:12px;align-items:center;border-top:1px solid var(--border);flex-wrap:wrap}
+.teg-stat{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:#7a9acc}
+.teg-stat span{font-size:16px;font-weight:600;color:#f0a020;display:block}
+
+/* === ROADMAP === */
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#3a5aaa,#1a2a44)}
+.titem{position:relative;margin-bottom:18px}
+.titem::before{content:'';position:absolute;left:-24px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--accent)}
+.tcard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.tcard h3{font-size:14px;font-weight:500;color:#c8d8f8;margin-bottom:3px}
+.tcard .tyear{font-size:11px;color:var(--accent);margin-bottom:5px}
+.tcard p{font-size:12px;color:#5a6a8a;line-height:1.65}
+.tcard .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#1a2744;border:1px solid #2a3a64;color:#7a9acc}
+
+/* === DATA === */
+.meter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.meter{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.meter svg{display:block;margin:0 auto 4px}
+.meter .mlabel{font-size:11px;color:var(--muted)}
+.meter .mval{font-size:16px;font-weight:600;color:#aac4ff;margin-bottom:2px}
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.chart-title{font-size:12px;color:var(--muted);margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bar-label{font-size:11px;color:var(--muted);min-width:120px;text-align:right}
+.bar-track{flex:1;height:16px;background:#0d1828;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px}
+.bar-val{font-size:11px;font-weight:500;color:rgba(255,255,255,.75)}
+
+/* FULLSCREEN */
+body.fs-mode{background:var(--bg)}
+body.fs-mode .hero{min-height:40px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <button id="fsBtn" onclick="toggleFS()">
+    <span id="fsIcon">⛶</span> <span id="fsLabel">Fullscreen</span>
+  </button>
+  <div class="sub">Smart Infrastructure Platform</div>
+  <h1>Smart Asphalt System</h1>
+  <p>Multi-function intelligent road infrastructure — zero emission · zero congestion · zero barriers</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('layers',this)">Architecture</button>
+  <button class="tab" onclick="showPanel('sim',this)">DWPT Simulation</button>
+  <button class="tab" onclick="showPanel('das',this)">DAS Sensor</button>
+  <button class="tab" onclick="showPanel('teg',this)">TEG Heat Flow</button>
+  <button class="tab" onclick="showPanel('roadmap',this)">Roadmap</button>
+  <button class="tab" onclick="showPanel('data',this)">Impact Data</button>
+</div>
+
+<!-- LAYER ARCHITECTURE -->
+<div id="p-layers" class="panel active">
+  <h2>4-Layer Architecture — click a layer to inspect</h2>
+  <div class="road" id="roadViz">
+    <div class="layer l1" onclick="selectLayer(0)" id="lay0">
+      <span class="lnum">①</span><div class="pulse"></div>
+      <span class="lname">Surface Layer</span>
+      <span class="ldesc">Non-magnetic concrete · Graphene/CNT coating · Photonic metamaterial</span>
+      <span class="lbadge">Wearing Course</span>
+    </div>
+    <div class="layer l2" onclick="selectLayer(1)" id="lay1">
+      <span class="lnum">②</span><div class="pulse amber"></div>
+      <span class="lname">Power Transfer Layer</span>
+      <span class="ldesc">Litz Wire DD coils · DWPT 85 kHz SAE J2954 · Segmented track</span>
+      <span class="lbadge">Power Layer</span>
+    </div>
+    <div class="layer l3" onclick="selectLayer(2)" id="lay2">
+      <span class="lnum">③</span><div class="pulse green"></div>
+      <span class="lname">Sensor Layer</span>
+      <span class="ldesc">Fiber Optic DAS · position · weight · micro-crack detection</span>
+      <span class="lbadge">Nerve System</span>
+    </div>
+    <div class="layer l4" onclick="selectLayer(3)" id="lay3">
+      <span class="lnum">④</span><div class="pulse teal"></div>
+      <span class="lname">Energy Harvest Layer</span>
+      <span class="ldesc">Thermoelectric Generator (TEG) · Piezoelectric · Road prosumer</span>
+      <span class="lbadge">Energy Harvest</span>
+    </div>
+  </div>
+  <div id="layer-detail"><p style="font-size:13px;color:var(--muted)">← Select a layer above to view technical specifications</p></div>
+</div>
+
+<!-- DWPT SIMULATION -->
+<div id="p-sim" class="panel">
+  <h2>Dynamic Wireless Power Transfer (DWPT) Simulation</h2>
+  <div class="road-sim">
+    <div class="charge-zone" id="chargeZone"></div>
+    <div class="charge-label" id="chargeLabel">⚡ Charging active</div>
+    <div class="road-dash"></div>
+    <div class="car" id="simCar" style="left:10%">
+      <div class="car-body">
+        <div class="car-roof"></div>
+        <div class="car-wheel l"></div>
+        <div class="car-wheel r"></div>
+      </div>
+    </div>
+    <div class="road-surface"></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="val" id="sSpeed">0</div><div class="lbl">Speed (km/h)</div></div>
+    <div class="stat"><div class="val" id="sBatt">45</div><div class="lbl">Battery (%)</div></div>
+    <div class="stat"><div class="val" id="sPower">0</div><div class="lbl">Power received (kW)</div></div>
+  </div>
+  <div class="ctrl">
+    <button class="btn" id="btnRun" onclick="toggleSim()">▶ Run</button>
+    <span class="rl">Speed:</span>
+    <input type="range" id="speedSlider" min="10" max="80" value="30" oninput="setSpeed(this.value)">
+    <span class="rv" id="speedVal">30 km/h</span>
+    <span class="rl">Efficiency:</span>
+    <input type="range" id="effSlider" min="60" max="95" value="85" oninput="setEff(this.value)">
+    <span class="rv" id="effVal">85%</span>
+  </div>
+  <p style="font-size:12px;color:#2a3a54;margin-top:10px">Blue zone = active DWPT segment. Only activates when a vehicle is directly above — safe & energy-efficient.</p>
+</div>
+
+<!-- DAS SENSOR -->
+<div id="p-das" class="panel">
+  <h2>Distributed Acoustic Sensing (DAS) — Fiber Optic Nerve System</h2>
+  <div class="das-wrap">
+    <div class="das-road" id="dasRoad">
+      <div class="fiber"></div>
+      <div class="das-road-line"></div>
+      <canvas id="dasWave" class="wave-canvas" style="position:absolute;top:0;left:0;height:70px;background:transparent"></canvas>
+    </div>
+    <div class="das-chart">
+      <div class="das-chart-title">Acoustic signal along fiber (real-time)</div>
+      <canvas id="dasSignal" class="wave-canvas"></canvas>
+    </div>
+  </div>
+  <div class="das-events">
+    <div class="das-card active" id="dc0" onclick="selectDAS(0)">
+      <div class="dc-icon">🚗</div>
+      <div class="dc-name">Vehicle detection</div>
+      <div class="dc-val" id="dv0">3 vehicles</div>
+    </div>
+    <div class="das-card" id="dc1" onclick="selectDAS(1)">
+      <div class="dc-icon">⚖️</div>
+      <div class="dc-name">Axle weight</div>
+      <div class="dc-val" id="dv1">2.4 tons avg</div>
+    </div>
+    <div class="das-card" id="dc2" onclick="selectDAS(2)">
+      <div class="dc-icon">⚠️</div>
+      <div class="dc-name">Incident alert</div>
+      <div class="dc-val" id="dv2">&lt;1 sec response</div>
+    </div>
+    <div class="das-card" id="dc3" onclick="selectDAS(3)">
+      <div class="dc-icon">🔍</div>
+      <div class="dc-name">Micro-crack</div>
+      <div class="dc-val" id="dv3">Self-monitoring</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:10px">The fiber optic cable embedded in Layer 3 acts as a continuous 1D sensor array. Each disturbance in the road creates a unique acoustic signature that is decoded in real-time.</p>
+</div>
+
+<!-- TEG HEAT FLOW -->
+<div id="p-teg" class="panel">
+  <h2>Thermoelectric Generator — Heat Harvesting Animation</h2>
+  <div class="teg-wrap">
+    <canvas id="tegCanvas" class="teg-canvas"></canvas>
+    <div class="teg-ctrl">
+      <span class="rl">Sun intensity:</span>
+      <input type="range" id="sunSlider" min="0" max="100" value="70" oninput="setSun(this.value)" style="flex:1;min-width:80px">
+      <span class="rv" id="sunVal">70%</span>
+      <span class="rl">Traffic load:</span>
+      <input type="range" id="trafficSlider" min="0" max="100" value="50" oninput="setTraffic(this.value)" style="flex:1;min-width:80px">
+      <span class="rv" id="trafficVal">50%</span>
+      <div class="teg-stat">ΔT <span id="tegDT">42°C</span></div>
+      <div class="teg-stat">Output <span id="tegOut">18W/m²</span></div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--muted)">The TEG harvests the temperature difference (ΔT) between the hot asphalt surface and the cooler subgrade beneath. Heat convection currents (orange arrows) visualize energy flow from surface to generator module, then to the power bus.</p>
+</div>
+
+<!-- ROADMAP -->
+<div id="p-roadmap" class="panel">
+  <h2>Development & Business Roadmap</h2>
+  <div class="timeline">
+    <div class="titem"><div class="tcard">
+      <div class="tyear">Phase 1 · Years 0–5</div>
+      <h3>Smart Lane Pioneer</h3>
+      <p>Deploy 1–5 km motorcycle lanes on dense urban arterials. DWPT + DAS as a pilot project for city governments. Prove the technology, generate revenue through data subscriptions and energy contracts.</p>
+      <div class="tags"><span class="tag">DWPT</span><span class="tag">DAS</span><span class="tag">Gov. contracts</span><span class="tag">Data subscription</span></div>
+    </div></div>
+    <div class="titem"><div class="tcard">
+      <div class="tyear">Phase 2 · Years 5–10</div>
+      <h3>Smart Corridor Expansion</h3>
+      <p>Dynamic DWPT corridors, self-healing polymer asphalt, basic TEG energy harvesting. Target electric bus operators and last-mile logistics. Revenue through technology licensing and recurring energy fees.</p>
+      <div class="tags"><span class="tag">Self-Healing</span><span class="tag">TEG</span><span class="tag">Tech licensing</span><span class="tag">Recurring fee</span></div>
+    </div></div>
+    <div class="titem"><div class="tcard">
+      <div class="tyear">Phase 3 · Years 10–20</div>
+      <h3>Smart Runway</h3>
+      <p>High-precision surface with high-power DWPT for Ground-Effect pods. Serves intercity logistics hubs and freight companies. Revenue from runway leasing and per-km energy billing.</p>
+      <div class="tags"><span class="tag">Ground-Effect Pod</span><span class="tag">Runway lease</span><span class="tag">Energy per km</span></div>
+    </div></div>
+    <div class="titem"><div class="tcard">
+      <div class="tyear">Phase 4 · 20+ Years</div>
+      <h3>Urban Smart Grid</h3>
+      <p>Photonic metamaterial asphalt, optional maglev integration. Becomes the national infrastructure standard and an active node in the urban electricity grid.</p>
+      <div class="tags"><span class="tag">Metamaterial</span><span class="tag">Maglev</span><span class="tag">National grid</span></div>
+    </div></div>
+  </div>
+</div>
+
+<!-- IMPACT DATA -->
+<div id="p-data" class="panel">
+  <h2>Projected Impact & Revenue Potential</h2>
+  <div class="meter-grid">
+    <div class="meter">
+      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#3a7aff" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="25"/></svg>
+      <div class="mval">150 kWh</div><div class="mlabel">Energy harvested / day / km</div>
+    </div>
+    <div class="meter">
+      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#30c080" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="50"/></svg>
+      <div class="mval">–40%</div><div class="mlabel">CO₂ emission reduction</div>
+    </div>
+    <div class="meter">
+      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#f0a020" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="20"/></svg>
+      <div class="mval">&lt;1 sec</div><div class="mlabel">Incident detection (DAS)</div>
+    </div>
+    <div class="meter">
+      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#20b8c0" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="15"/></svg>
+      <div class="mval">–30%</div><div class="mlabel">EV battery cost reduction</div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Revenue potential per phase (relative scale)</div>
+    <div class="bar-row"><span class="bar-label">Phase 1 (0–5y)</span><div class="bar-track"><div class="bar-fill" style="width:18%;background:#3a7aff"><span class="bar-val">Pilot</span></div></div></div>
+    <div class="bar-row"><span class="bar-label">Phase 2 (5–10y)</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:#5a9aff"><span class="bar-val">Mid-scale</span></div></div></div>
+    <div class="bar-row"><span class="bar-label">Phase 3 (10–20y)</span><div class="bar-track"><div class="bar-fill" style="width:73%;background:#20b8c0"><span class="bar-val">Large scale</span></div></div></div>
+    <div class="bar-row"><span class="bar-label">Phase 4 (20+y)</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#30c080"><span class="bar-val">National grid</span></div></div></div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Multi-utility revenue streams</div>
+    <div class="bar-row"><span class="bar-label">Energy (electricity)</span><div class="bar-track"><div class="bar-fill" style="width:70%;background:#3a7aff"><span class="bar-val">70%</span></div></div></div>
+    <div class="bar-row"><span class="bar-label">Traffic data</span><div class="bar-track"><div class="bar-fill" style="width:45%;background:#f0a020"><span class="bar-val">45%</span></div></div></div>
+    <div class="bar-row"><span class="bar-label">Infrastructure lease</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:#30c080"><span class="bar-val">35%</span></div></div></div>
+    <div class="bar-row"><span class="bar-label">Tech licensing</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#20b8c0"><span class="bar-val">25%</span></div></div></div>
+  </div>
+</div>
+
+<script>
+// ─── Panel ───────────────────────────────────────────────────────────────────
+function showPanel(id, el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='sim' && !simRunning) startSim();
+  if(id==='das') startDAS();
+  if(id==='teg') startTEG();
+}
+
+// ─── Fullscreen ───────────────────────────────────────────────────────────────
+function toggleFS(){
+  const el = document.documentElement;
+  const isFS = document.fullscreenElement;
+  if(!isFS){ el.requestFullscreen && el.requestFullscreen(); }
+  else { document.exitFullscreen && document.exitFullscreen(); }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const isFS = !!document.fullscreenElement;
+  document.getElementById('fsIcon').textContent = isFS ? '✕' : '⛶';
+  document.getElementById('fsLabel').textContent = isFS ? 'Exit' : 'Fullscreen';
+  document.body.classList.toggle('fs-mode', isFS);
+});
+
+// ─── Layer detail ─────────────────────────────────────────────────────────────
+const layerInfo=[
+  {title:'Surface Layer (Wearing Course)',items:['Fine non-magnetic asphalt concrete','Near-term: Graphene/CNT heat-absorbing coating supplying the thermoelectric layer','Long-term: Photonic metamaterial structure (inspired by butterfly wings) — >95% light absorption','Reduces urban heat island: asphalt designed to radiatively cool itself']},
+  {title:'Power Transfer Layer',items:['Litz Wire type DD (Double-D) coils embedded in the road bed','Operating frequency: 85 kHz — SAE J2954 standard (compatible with all major EV platforms)','Segmented Track: only the segment directly under a vehicle activates','Result: no standing electromagnetic field — safe for pedestrians and cyclists']},
+  {title:'Sensor Layer — Nerve System',items:['Distributed Acoustic Sensing (DAS) via embedded fiber optic cable','Detects: vehicle position, speed, axle weight, traffic density in real-time','Incident response latency: <1 second — automatic alert to traffic management center','Self-monitoring: detects micro-cracks in asphalt before structural failure occurs']},
+  {title:'Energy Harvest Layer',items:['Thermoelectric Generator (TEG): harvests the ΔT between hot asphalt surface and cool subgrade','TEG output powers streetlights, sensors, and EV charging auxiliary systems','Piezoelectric transducers: capture mechanical energy from vehicle pressure at high-traffic nodes','Enables road segments to become active energy prosumers, feeding local microgrids']},
+];
+function selectLayer(i){
+  document.querySelectorAll('.layer').forEach((l,j)=>{l.classList.remove('hi');if(j===i)l.classList.add('hi');});
+  const d=layerInfo[i];
+  document.getElementById('layer-detail').innerHTML=`<p style="font-size:13px;font-weight:500;color:#c8d8f8;margin-bottom:10px">${d.title}</p>${d.items.map(it=>`<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--accent);margin-top:1px">▸</span><span style="font-size:12px;color:#6a7a9a;line-height:1.65">${it}</span></div>`).join('')}`;
+}
+
+// ─── DWPT Simulation ──────────────────────────────────────────────────────────
+let simRunning=false,simPos=10,simSpeed=30,simEff=85,simBatt=45,simInterval=null;
+function startSim(){if(!simRunning){simRunning=true;document.getElementById('btnRun').textContent='⏸ Pause';runSim();}}
+function toggleSim(){simRunning=!simRunning;document.getElementById('btnRun').textContent=simRunning?'⏸ Pause':'▶ Run';if(simRunning)runSim();}
+function setSpeed(v){simSpeed=parseInt(v);document.getElementById('speedVal').textContent=v+' km/h';}
+function setEff(v){simEff=parseInt(v);document.getElementById('effVal').textContent=v+'%';}
+function runSim(){
+  if(simInterval)clearInterval(simInterval);
+  simInterval=setInterval(()=>{
+    if(!simRunning){clearInterval(simInterval);return;}
+    simPos+=simSpeed/900;
+    if(simPos>92)simPos=5;
+    document.getElementById('simCar').style.left=simPos+'%';
+    document.getElementById('chargeZone').style.left=(simPos-9)+'%';
+    const charging=simPos>15&&simPos<80;
+    const power=charging?Math.round(simEff*.22):0;
+    document.getElementById('sSpeed').textContent=simSpeed;
+    document.getElementById('sPower').textContent=power;
+    document.getElementById('chargeLabel').style.opacity=charging?'1':'0';
+    if(charging)simBatt=Math.min(100,simBatt+.025);
+    document.getElementById('sBatt').textContent=Math.round(simBatt);
+  },40);
+}
+
+// ─── DAS Sensor ───────────────────────────────────────────────────────────────
+let dasRunning=false,dasT=0,dasVehicles=[{x:.2,speed:.003},{x:.55,speed:.002},{x:.8,speed:.0025}];
+let dasMode=0;
+function selectDAS(i){dasMode=i;document.querySelectorAll('.das-card').forEach((c,j)=>c.classList.toggle('active',j===i));}
+function startDAS(){
+  if(dasRunning)return;
+  dasRunning=true;
+  const wCanvas=document.getElementById('dasWave');
+  const sCanvas=document.getElementById('dasSignal');
+  if(!wCanvas||!sCanvas)return;
+  wCanvas.width=wCanvas.offsetWidth||680;wCanvas.height=70;
+  sCanvas.width=sCanvas.offsetWidth||680;sCanvas.height=60;
+  const wCtx=wCanvas.getContext('2d');
+  const sCtx=sCanvas.getContext('2d');
+  function drawDAS(){
+    dasT+=.016;
+    dasVehicles.forEach(v=>{v.x+=v.speed;if(v.x>1.1)v.x=-0.05;});
+    const W=wCanvas.width,H=70,SW=sCanvas.width,SH=60;
+    // road wave overlay
+    wCtx.clearRect(0,0,W,H);
+    dasVehicles.forEach(v=>{
+      const cx=v.x*W;
+      const grad=wCtx.createRadialGradient(cx,H,2,cx,H,60);
+      grad.addColorStop(0,'rgba(32,184,192,.35)');
+      grad.addColorStop(1,'rgba(32,184,192,0)');
+      wCtx.fillStyle=grad;
+      wCtx.beginPath();wCtx.arc(cx,H,60,0,Math.PI*2);wCtx.fill();
+    });
+    // signal wave
+    sCtx.fillStyle='#050c18';sCtx.fillRect(0,0,SW,SH);
+    sCtx.beginPath();sCtx.strokeStyle='#20b8c0';sCtx.lineWidth=1.5;
+    for(let x=0;x<SW;x++){
+      let y=SH/2;
+      dasVehicles.forEach(v=>{
+        const dist=Math.abs(x/SW-v.x);
+        const amp=Math.max(0,1-dist*8)*22;
+        y+=Math.sin(dasT*8+x*.04)*amp*(dasMode===0?1:dasMode===1?.7:.5);
+      });
+      y+=Math.sin(dasT*3+x*.01)*3;
+      if(x===0)sCtx.moveTo(x,y);else sCtx.lineTo(x,y);
+    }
+    sCtx.stroke();
+    // update cards
+    const cnt=dasVehicles.length;
+    document.getElementById('dv0').textContent=cnt+' vehicle'+(cnt!==1?'s':'');
+    document.getElementById('dv1').textContent=(2.1+Math.sin(dasT*.5)*.4).toFixed(1)+' tons avg';
+    requestAnimationFrame(drawDAS);
+  }
+  drawDAS();
+}
+
+// ─── TEG Heat ────────────────────────────────────────────────────────────────
+let tegRunning=false,tegT=0,sunInt=70,trafficInt=50;
+function setSun(v){sunInt=parseInt(v);document.getElementById('sunVal').textContent=v+'%';updateTEGStats();}
+function setTraffic(v){trafficInt=parseInt(v);document.getElementById('trafficVal').textContent=v+'%';updateTEGStats();}
+function updateTEGStats(){
+  const dt=Math.round(15+sunInt*.4+trafficInt*.2);
+  const out=Math.round(dt*.42);
+  document.getElementById('tegDT').textContent=dt+'°C';
+  document.getElementById('tegOut').textContent=out+'W/m²';
+}
+function startTEG(){
+  if(tegRunning)return;
+  tegRunning=true;
+  updateTEGStats();
+  const cv=document.getElementById('tegCanvas');
+  if(!cv)return;
+  cv.width=cv.offsetWidth||680;cv.height=200;
+  const ctx=cv.getContext('2d');
+  // Particle system for convection
+  const particles=[];
+  for(let i=0;i<28;i++){
+    particles.push({x:Math.random(),y:Math.random(),vy:0,phase:Math.random()*Math.PI*2,life:Math.random()});
+  }
+  function drawTEG(){
+    tegT+=.012;
+    const W=cv.width,H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    // Background layers
+    // Sky / ambient
+    ctx.fillStyle='#050c18';ctx.fillRect(0,0,W,H);
+    // Sun rays from top
+    const sunAlpha=sunInt/100*.18;
+    for(let i=0;i<5;i++){
+      const rx=W*(.2+i*.15);
+      const rg=ctx.createLinearGradient(rx,0,rx,60);
+      rg.addColorStop(0,`rgba(240,200,50,${sunAlpha})`);
+      rg.addColorStop(1,'rgba(240,200,50,0)');
+      ctx.fillStyle=rg;
+      ctx.beginPath();ctx.moveTo(rx-6,0);ctx.lineTo(rx+6,0);ctx.lineTo(rx+20,60);ctx.lineTo(rx-20,60);ctx.closePath();ctx.fill();
+    }
+    // Hot asphalt surface
+    const surfaceHeat=sunInt*.6+trafficInt*.4;
+    const hue=Math.round(20-surfaceHeat*.1);
+    const hotGrad=ctx.createLinearGradient(0,40,0,78);
+    hotGrad.addColorStop(0,`hsla(${hue},80%,${35+surfaceHeat*.15}%,.9)`);
+    hotGrad.addColorStop(1,`hsla(${hue},60%,20%,.8)`);
+    ctx.fillStyle=hotGrad;ctx.fillRect(0,40,W,38);
+    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(0,75,W,4);
+    // Labels
+    ctx.font='11px sans-serif';ctx.fillStyle='rgba(255,200,100,.7)';
+    ctx.fillText('Hot asphalt surface',8,58);
+    const dt=Math.round(15+sunInt*.4+trafficInt*.2);
+    ctx.fillStyle='rgba(255,180,80,.8)';ctx.font='bold 13px sans-serif';
+    ctx.fillText('ΔT = '+dt+'°C',W-90,58);
+    // TEG module layer
+    ctx.fillStyle='#1a2840';ctx.fillRect(0,80,W,28);
+    ctx.fillStyle='rgba(32,184,192,.15)';ctx.fillRect(0,80,W,28);
+    ctx.strokeStyle='rgba(32,184,192,.4)';ctx.lineWidth=1;ctx.strokeRect(0,80,W,28);
+    ctx.font='11px sans-serif';ctx.fillStyle='rgba(32,184,192,.8)';
+    ctx.fillText('TEG module layer — thermoelectric generators',8,97);
+    // Cool subgrade
+    const coolGrad=ctx.createLinearGradient(0,110,0,H);
+    coolGrad.addColorStop(0,'#0a1828');
+    coolGrad.addColorStop(1,'#070e1e');
+    ctx.fillStyle=coolGrad;ctx.fillRect(0,110,W,H-110);
+    ctx.font='11px sans-serif';ctx.fillStyle='rgba(100,160,220,.5)';
+    ctx.fillText('Cool subgrade',8,H-12);
+    // Power bus
+    const busW=W*.5,busX=W*.25;
+    ctx.strokeStyle=`rgba(32,184,192,${.3+sunInt/200})`;ctx.lineWidth=2;
+    ctx.strokeRect(busX,86,busW,14);
+    ctx.fillStyle=`rgba(32,184,192,${.1+sunInt/300})`;ctx.fillRect(busX,86,busW,14);
+    ctx.font='10px sans-serif';ctx.fillStyle='rgba(32,184,192,.9)';
+    ctx.textAlign='center';ctx.fillText('DC power bus → grid',W/2,96);ctx.textAlign='left';
+    // Convection particles (heat rising to TEG)
+    const intensity=(sunInt+trafficInt)/200;
+    particles.forEach((p,idx)=>{
+      p.life+=.004*intensity;
+      if(p.life>1){p.life=0;p.x=Math.random();p.y=1;}
+      // Map: y=1 at bottom of surface (78px), y=0 at TEG top (80px) — rising
+      const py=78-(p.life*38);
+      const px=p.x*W+(Math.sin(tegT*1.5+p.phase)*12);
+      const alpha=Math.sin(p.life*Math.PI)*.7*intensity;
+      const heatColor=p.life<.5?`rgba(240,120,20,${alpha})`:`rgba(240,180,40,${alpha})`;
+      ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);
+      ctx.fillStyle=heatColor;ctx.fill();
+      // small upward arrow every 4th particle
+      if(idx%4===0 && alpha>.2){
+        ctx.strokeStyle=heatColor;ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(px,py+6);ctx.lineTo(px,py);
+        ctx.lineTo(px-3,py+4);ctx.moveTo(px,py);ctx.lineTo(px+3,py+4);
+        ctx.stroke();
+      }
+    });
+    // Cold side: subtle blue particles (heat sink)
+    particles.forEach((p,idx)=>{
+      if(idx%3!==0)return;
+      const py=112+(p.life*30);
+      const px=p.x*W+(Math.sin(tegT+p.phase)*8);
+      if(py>H-10)return;
+      const alpha=Math.sin(p.life*Math.PI)*.3;
+      ctx.beginPath();ctx.arc(px,py,1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(80,160,240,${alpha})`;ctx.fill();
+    });
+    // Output power indicator
+    const outW=Math.min(1,(sunInt+trafficInt)/200);
+    const barW=(W-80)*outW;
+    ctx.fillStyle='#0a1820';ctx.fillRect(20,H-36,W-40,12);
+    const outGrad=ctx.createLinearGradient(20,0,20+barW,0);
+    outGrad.addColorStop(0,'#f0a020');outGrad.addColorStop(1,'#20b8c0');
+    ctx.fillStyle=outGrad;ctx.fillRect(20,H-36,barW,12);
+    ctx.strokeStyle='rgba(32,184,192,.3)';ctx.lineWidth=1;ctx.strokeRect(20,H-36,W-40,12);
+    ctx.font='10px sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';
+    ctx.fillText('Power output: '+Math.round(dt*.42)+' W/m²',24,H-14);
+    requestAnimationFrame(drawTEG);
+  }
+  drawTEG();
+}
+</script>
+</body>
+</html>
