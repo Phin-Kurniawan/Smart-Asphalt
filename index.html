@@ -2,348 +2,208 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<style>
-    .flex-row-between {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    }
-    .btn-3d {
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid #2a3a64;
-  background: #1a2744;
-  color: #aac4ff;
-  font-size: 12px;
-  cursor: pointer;
-}
-.btn-3d:hover {
-  background: #223466;
-  border-color: #3a5aaa;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0e1a;--bg2:#0e1828;--bg3:#131f30;--border:#1e2a42;--text:#e8eaf0;--muted:#5a6a8a;--accent:#3a7aff;--accent2:#20b8c0;--green:#30c080;--amber:#f0a020}
-body{font-family:sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
-h2{font-size:12px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#4a5a7a;margin-bottom:10px}
-
-/* HERO */
-.hero{text-align:center;padding:32px 24px 16px;background:linear-gradient(180deg,#0d1526 0%,var(--bg) 100%);position:relative}
-.hero h1{font-size:24px;font-weight:600;letter-spacing:.04em;color:#e0eaff;margin-bottom:4px}
-.hero .sub{font-size:12px;color:#4a5a7a;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
-.hero p{font-size:13px;color:#5a6a8a;max-width:460px;margin:4px auto 0}
-
-/* FULLSCREEN BTN */
-#fsBtn{position:absolute;top:16px;right:16px;background:var(--bg3);border:1px solid var(--border);color:#7a9acc;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-#fsBtn:hover{background:var(--bg2);color:#aac4ff}
-body.fs-mode .hero{padding-top:48px}
-body.fs-mode #fsBtn{position:fixed;top:12px;right:12px;z-index:999}
-
-/* TABS */
-.tabs{display:flex;justify-content:center;gap:6px;padding:14px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:10;background:var(--bg)}
-.tab{padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:#5a6a8a;transition:all .2s}
-.tab:hover{color:#aac4ff;border-color:#2a3a64}
-.tab.active{background:#1a2744;border-color:#3a5aaa;color:#aac4ff}
-
-/* PANELS */
-.panel{display:none;padding:22px 24px 32px;max-width:900px;margin:0 auto}
-.panel.active{display:block}
-
-/* === LAYER VIZ === */
-.road{position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;cursor:pointer;user-select:none;border:1px solid var(--border)}
-.layer{position:absolute;left:0;right:0;display:flex;align-items:center;padding:0 18px;transition:background .3s;border-bottom:1px solid rgba(255,255,255,.04)}
-.layer .lnum{font-size:11px;color:#3a4a6a;min-width:20px}
-.layer .lname{font-size:13px;font-weight:500;color:#c8d8f8;min-width:150px}
-.layer .ldesc{font-size:12px;color:#4a5a7a;flex:1;padding:0 10px}
-.layer .lbadge{font-size:11px;padding:3px 10px;border-radius:10px;background:#1a2744;color:#7aacff;border:1px solid #2a3a64;white-space:nowrap}
-.layer.hi .lname{color:#e0f0ff}
-.l1{top:0;height:25%;background:#141e30}
-.l2{top:25%;height:25%;background:#0f1c2e}
-.l3{top:50%;height:25%;background:#0b182a}
-.l4{top:75%;height:25%;background:#081426}
-.l1.hi{background:#1e3060}.l2.hi{background:#1a2c50}.l3.hi{background:#14243e}.l4.hi{background:#0e1a2e}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:10px;flex-shrink:0;animation:pulse 2s infinite}
-.pulse.amber{background:var(--amber)}.pulse.green{background:var(--green)}.pulse.teal{background:var(--accent2)}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
-#layer-detail{margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;min-height:80px}
-
-/* === SIM === */
-.road-sim{position:relative;width:100%;height:190px;background:#080e1a;border-radius:12px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
-.road-surface{position:absolute;bottom:0;width:100%;height:60px;background:#111824;border-top:2px solid #1e2840}
-.road-dash{position:absolute;bottom:28px;height:2px;background:#2a4080;animation:dash 1.2s linear infinite}
-@keyframes dash{from{left:-20%;width:15%}to{left:100%;width:15%}}
-.car{position:absolute;bottom:56px;width:68px;height:34px;transition:left .05s linear}
-.car-body{width:68px;height:30px;background:#3a7aff;border-radius:8px 12px 6px 6px;position:relative}
-.car-roof{position:absolute;top:-11px;left:14px;width:36px;height:15px;background:#2a5acc;border-radius:6px 6px 0 0}
-.car-wheel{position:absolute;bottom:-6px;width:13px;height:13px;background:#111;border-radius:50%;border:2px solid #333}
-.car-wheel.l{left:8px}.car-wheel.r{right:8px}
-.charge-zone{position:absolute;top:0;bottom:56px;width:18%;background:rgba(58,122,255,.07);border-left:1px dashed rgba(58,122,255,.25);border-right:1px dashed rgba(58,122,255,.25);transition:left .05s linear}
-.charge-label{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s;white-space:nowrap}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-.stat .val{font-size:22px;font-weight:600;color:#aac4ff;margin-bottom:2px}
-.stat .lbl{font-size:11px;color:var(--muted)}
-.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.btn{padding:7px 16px;border-radius:8px;border:1px solid #2a3a64;background:#1a2744;color:#aac4ff;font-size:12px;cursor:pointer;transition:all .2s}
-.btn:hover{background:#223466;border-color:#3a5aaa}
-input[type=range]{flex:1;min-width:100px;accent-color:var(--accent)}
-.rl{font-size:12px;color:var(--muted);min-width:70px}
-.rv{font-size:12px;color:#aac4ff;min-width:48px}
-
-/* === DAS === */
-.das-wrap{background:#050c18;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
-.das-road{position:relative;height:90px;background:#080e1a;border-bottom:1px solid var(--border)}
-.fiber{position:absolute;bottom:20px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#20b8c080,#20b8c0,#20b8c080,transparent)}
-.das-event{position:absolute;bottom:18px;width:6px;height:6px;border-radius:50%;transform:translateX(-50%);opacity:0;transition:opacity .3s}
-.das-road-line{position:absolute;bottom:0;left:0;right:0;height:20px;background:#0d1828;border-top:2px solid #1e2840}
-.das-chart{padding:14px 16px}
-.das-chart-title{font-size:11px;color:var(--muted);margin-bottom:8px}
-.wave-canvas{width:100%;height:60px;border-radius:6px;background:#050c18;display:block}
-.das-events{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-.das-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .2s}
-.das-card:hover{border-color:#2a5aaa}
-.das-card .dc-icon{font-size:18px;margin-bottom:4px}
-.das-card .dc-name{font-size:12px;color:#c8d8f8;font-weight:500;margin-bottom:2px}
-.das-card .dc-val{font-size:11px;color:var(--muted)}
-.das-card.active{border-color:var(--accent2);background:#0f1e2e}
-
-/* === TEG HEAT === */
-.teg-wrap{background:#050c18;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
-.teg-canvas{width:100%;height:200px;display:block}
-.teg-ctrl{padding:12px 16px;display:flex;gap:12px;align-items:center;border-top:1px solid var(--border);flex-wrap:wrap}
-.teg-stat{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:#7a9acc}
-.teg-stat span{font-size:16px;font-weight:600;color:#f0a020;display:block}
-
-/* === ROADMAP === */
-.timeline{position:relative;padding-left:30px}
-.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#3a5aaa,#1a2a44)}
-.titem{position:relative;margin-bottom:18px}
-.titem::before{content:'';position:absolute;left:-24px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--accent)}
-.tcard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.tcard h3{font-size:14px;font-weight:500;color:#c8d8f8;margin-bottom:3px}
-.tcard .tyear{font-size:11px;color:var(--accent);margin-bottom:5px}
-.tcard p{font-size:12px;color:#5a6a8a;line-height:1.65}
-.tcard .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#1a2744;border:1px solid #2a3a64;color:#7a9acc}
-
-/* === DATA === */
-.meter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.meter{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
-.meter svg{display:block;margin:0 auto 4px}
-.meter .mlabel{font-size:11px;color:var(--muted)}
-.meter .mval{font-size:16px;font-weight:600;color:#aac4ff;margin-bottom:2px}
-.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
-.chart-title{font-size:12px;color:var(--muted);margin-bottom:10px}
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
-.bar-label{font-size:11px;color:var(--muted);min-width:120px;text-align:right}
-.bar-track{flex:1;height:16px;background:#0d1828;border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px}
-.bar-val{font-size:11px;font-weight:500;color:rgba(255,255,255,.75)}
-
-/* FULLSCREEN */
-body.fs-mode{background:var(--bg)}
-body.fs-mode .hero{min-height:40px}
-.hero-icon {
-  width: 64px;
-  height: 64px;
-  margin-right: 1rem;
-  vertical-align: middle;
-}
-.phase-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.btn-cta {
-  display: inline-block;
-  margin-top: 0.25rem;
-  padding: 0.1rem 0.7rem;
-  background: #00ff8881;
-  color: #0f172a;
-  border-radius: 2rem;
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: 0.2s;
-}
-.btn-cta:hover {
-  background: #00cc66;
-}
-</style>
+<link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-
 <div class="hero">
-  <button id="fsBtn" onclick="toggleFS()">
-    <span id="fsIcon">⛶</span> <span id="fsLabel">Fullscreen</span>
-  </button>
-  <div class="sub">Smart Infrastructure Platform</div>
+  <div class="top-ctrls">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en',this)">EN</button>
+      <button class="lang-btn" onclick="setLang('id',this)">ID</button>
+    </div>
+    <button class="icon-btn" id="fsBtn" onclick="toggleFS()">⛶ <span id="fsLabel">Fullscreen</span></button>
+  </div>
+  <div class="sub" data-en="Smart Infrastructure Platform" data-id="Platform Infrastruktur Pintar">Smart Infrastructure Platform</div>
   <h1>Smart Asphalt System</h1>
-  <p>Multi-function intelligent road infrastructure — zero emission · zero congestion · zero barriers</p>
+  <p data-en="Multi-function intelligent road infrastructure — zero emission · zero congestion · zero barriers"
+     data-id="Infrastruktur jalan pintar multi-fungsi — nol emisi · nol hambatan · nol polusi">
+    Multi-function intelligent road infrastructure — zero emission · zero congestion · zero barriers</p>
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showPanel('layers',this)">Architecture</button>
-  
-  <button class="tab" onclick="showPanel('sim',this)">DWPT Simulation</button>
-  <button class="tab" onclick="showPanel('das',this)">DAS Sensor</button>
-  <button class="tab" onclick="showPanel('teg',this)">TEG Heat Flow</button>
-  <button class="tab" onclick="showPanel('roadmap',this)">Roadmap</button>
-  <button class="tab" onclick="showPanel('data',this)">Impact Data</button>
+  <button class="tab active" onclick="showPanel('layers',this)" data-en="Architecture" data-id="Arsitektur">Architecture</button>
+  <button class="tab" onclick="showPanel('sim',this)" data-en="DWPT Simulation" data-id="Simulasi DWPT">DWPT Simulation</button>
+  <button class="tab" onclick="showPanel('das',this)" data-en="DAS Sensor" data-id="Sensor DAS">DAS Sensor</button>
+  <button class="tab" onclick="showPanel('teg',this)" data-en="TEG Heat Flow" data-id="Aliran Panas TEG">TEG Heat Flow</button>
+  <button class="tab" onclick="showPanel('roadmap',this)" data-en="Roadmap" data-id="Peta Jalan">Roadmap</button>
+  <button class="tab" onclick="showPanel('data',this)" data-en="Impact Data" data-id="Data Dampak">Impact Data</button>
 </div>
 
-<!-- LAYER ARCHITECTURE -->
+<!-- ARCHITECTURE -->
 <div id="p-layers" class="panel active">
-   <div class="flex-row-between">
-        <h2>4-Layer Architecture — click a layer to inspect</h2>
+    <div class="flex-row-between">
+        <h2 data-en="4-Layer Architecture — click a layer to inspect" data-id="Arsitektur 4 Lapis — klik lapisan untuk detail">4-Layer Architecture — click a layer to inspect</h2>
          <button class="tab active btn-3d" onclick="window.open('architecture.html','_blank')">3D Model</button>
     </div>
-  <div class="road" id="roadViz">
-    <div class="layer l1" onclick="selectLayer(0)" id="lay0">
-      <span class="lnum">①</span><div class="pulse"></div>
-      <span class="lname">Surface Layer</span>
-      <span class="ldesc">Non-magnetic concrete · Graphene/CNT coating · Photonic metamaterial</span>
-      <span class="lbadge">Wearing Course</span>
-    </div>
-    <div class="layer l2" onclick="selectLayer(1)" id="lay1">
-      <span class="lnum">②</span><div class="pulse amber"></div>
-      <span class="lname">Power Transfer Layer</span>
-      <span class="ldesc">Litz Wire DD coils · DWPT 85 kHz SAE J2954 · Segmented track</span>
-      <span class="lbadge">Power Layer</span>
-    </div>
-    <div class="layer l3" onclick="selectLayer(2)" id="lay2">
-      <span class="lnum">③</span><div class="pulse green"></div>
-      <span class="lname">Sensor Layer</span>
-      <span class="ldesc">Fiber Optic DAS · position · weight · micro-crack detection</span>
-      <span class="lbadge">Nerve System</span>
-    </div>
-    <div class="layer l4" onclick="selectLayer(3)" id="lay3">
-      <span class="lnum">④</span><div class="pulse teal"></div>
-      <span class="lname">Energy Harvest Layer</span>
-      <span class="ldesc">Thermoelectric Generator (TEG) · Piezoelectric · Road prosumer</span>
-      <span class="lbadge">Energy Harvest</span>
-    </div>
+  <div class="road">
+    <div class="layer l1" onclick="selectLayer(0)"><span class="lnum">①</span><div class="pulse"></div>
+      <span class="lname" data-en="Surface Layer" data-id="Lapisan Permukaan">Surface Layer</span>
+      <span class="ldesc" data-en="Non-magnetic concrete · Graphene/CNT · Photonic metamaterial" data-id="Beton non-magnetik · Graphene/CNT · Metamaterial fotonik">Non-magnetic concrete · Graphene/CNT · Photonic metamaterial</span>
+      <span class="lbadge">Wearing Course</span></div>
+    <div class="layer l2" onclick="selectLayer(1)"><span class="lnum">②</span><div class="pulse amber"></div>
+      <span class="lname" data-en="Power Transfer Layer" data-id="Lapisan Transfer Daya">Power Transfer Layer</span>
+      <span class="ldesc" data-en="Litz Wire DD · DWPT 85 kHz SAE J2954 · Segmented track" data-id="Kumparan Litz Wire DD · DWPT 85 kHz · Segmented track">Litz Wire DD · DWPT 85 kHz SAE J2954 · Segmented track</span>
+      <span class="lbadge">Power Layer</span></div>
+    <div class="layer l3" onclick="selectLayer(2)"><span class="lnum">③</span><div class="pulse green"></div>
+      <span class="lname" data-en="Sensor Layer" data-id="Lapisan Sensor">Sensor Layer</span>
+      <span class="ldesc" data-en="Fiber Optic DAS · position · weight · micro-crack detection" data-id="Fiber Optik DAS · posisi · bobot · deteksi retakan">Fiber Optic DAS · position · weight · micro-crack detection</span>
+      <span class="lbadge">Nerve System</span></div>
+    <div class="layer l4" onclick="selectLayer(3)"><span class="lnum">④</span><div class="pulse teal"></div>
+      <span class="lname" data-en="Energy Harvest Layer" data-id="Lapisan Panen Energi">Energy Harvest Layer</span>
+      <span class="ldesc" data-en="TEG · Piezoelectric · Road as energy prosumer" data-id="TEG · Piezoelektrik · Jalan sebagai prosumer energi">TEG · Piezoelectric · Road as energy prosumer</span>
+      <span class="lbadge">Energy Harvest</span></div>
   </div>
-  <div id="layer-detail"><p style="font-size:13px;color:var(--muted)">← Select a layer above to view technical specifications</p></div>
+  <div id="layer-detail"><p style="font-size:13px;color:var(--muted)" data-en="← Select a layer above to view technical specifications" data-id="← Pilih lapisan di atas untuk melihat spesifikasi teknis">← Select a layer above to view technical specifications</p></div>
 </div>
 
-<!-- DWPT SIMULATION -->
+<!-- DWPT SIM v3 -->
 <div id="p-sim" class="panel">
-  <h2>Dynamic Wireless Power Transfer (DWPT) Simulation</h2>
-  <div class="road-sim">
-    <div class="charge-zone" id="chargeZone"></div>
-    <div class="charge-label" id="chargeLabel">⚡ Charging active</div>
-    <div class="road-dash"></div>
-    <div class="car" id="simCar" style="left:10%">
-      <div class="car-body">
-        <div class="car-roof"></div>
-        <div class="car-wheel l"></div>
-        <div class="car-wheel r"></div>
-      </div>
-    </div>
-    <div class="road-surface"></div>
+  <h2 data-en="DWPT Live Simulation — Dynamic Wireless Power Transfer" data-id="Simulasi DWPT Langsung — Transfer Daya Nirkabel Dinamis">DWPT Live Simulation — Dynamic Wireless Power Transfer</h2>
+
+  <!-- Vehicle selector -->
+  <div class="veh-sel" id="vehSel">
+    <button class="vbtn active" onclick="selectVehicle('motor',this)">
+      <svg viewBox="0 0 56 28" fill="none"><ellipse cx="10" cy="22" rx="7" ry="7" stroke="#aac4ff" stroke-width="2"/><ellipse cx="46" cy="22" rx="7" ry="7" stroke="#aac4ff" stroke-width="2"/><rect x="14" y="10" width="22" height="12" rx="4" fill="#3a7aff"/><path d="M36 14 L48 14 L48 18 L36 18Z" fill="#2a5aee"/><rect x="8" y="14" width="8" height="8" rx="2" fill="#2a5aee"/><circle cx="28" cy="8" r="5" fill="#2a5aee"/></svg>
+      <span data-en="Motor" data-id="Motor">Motor</span>
+    </button>
+    <button class="vbtn" onclick="selectVehicle('car',this)">
+      <svg viewBox="0 0 64 28" fill="none"><ellipse cx="12" cy="23" rx="6" ry="6" stroke="#aac4ff" stroke-width="2"/><ellipse cx="52" cy="23" rx="6" ry="6" stroke="#aac4ff" stroke-width="2"/><rect x="4" y="12" width="56" height="12" rx="5" fill="#3a7aff"/><path d="M14 12 L20 4 L44 4 L50 12Z" fill="#2a5aee"/><rect x="22" y="5" width="20" height="7" rx="2" fill="#7ab0ff" opacity=".5"/></svg>
+      <span data-en="Car" data-id="Mobil">Car</span>
+    </button>
+    <button class="vbtn" onclick="selectVehicle('bus',this)">
+      <svg viewBox="0 0 88 36" fill="none"><ellipse cx="14" cy="29" rx="7" ry="7" stroke="#aac4ff" stroke-width="2"/><ellipse cx="74" cy="29" rx="7" ry="7" stroke="#aac4ff" stroke-width="2"/><rect x="4" y="4" width="80" height="26" rx="5" fill="#3a7aff"/><rect x="8" y="7" width="12" height="10" rx="2" fill="#7ab0ff" opacity=".5"/><rect x="24" y="7" width="12" height="10" rx="2" fill="#7ab0ff" opacity=".5"/><rect x="40" y="7" width="12" height="10" rx="2" fill="#7ab0ff" opacity=".5"/><rect x="56" y="7" width="12" height="10" rx="2" fill="#7ab0ff" opacity=".5"/><rect x="72" y="7" width="8" height="10" rx="2" fill="#7ab0ff" opacity=".5"/></svg>
+      <span data-en="E-Bus" data-id="Bus Listrik">E-Bus</span>
+    </button>
+    <button class="vbtn" onclick="selectVehicle('pod',this)">
+      <svg viewBox="0 0 80 24" fill="none"><path d="M4 14 Q4 4 20 4 L60 4 Q76 4 76 14 L76 18 Q76 22 60 22 L20 22 Q4 22 4 18Z" fill="#20b8c0"/><ellipse cx="40" cy="4" rx="20" ry="8" fill="#1a9aaa" opacity=".5"/><rect x="16" y="7" width="48" height="10" rx="5" fill="#0a7080" opacity=".4"/></svg>
+      <span data-en="Pod" data-id="Pod">Pod</span>
+    </button>
   </div>
+
+  <div class="sim-scene" id="simScene">
+    <div class="sim-sky"></div>
+    <!-- stars -->
+    <canvas id="starCanvas" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+    <div class="sim-road-body"></div>
+    <div class="sim-road-top"></div>
+    <div class="sim-lane" id="laneEl" style="left:0;right:0;width:100%"></div>
+    <div class="seg-track" id="segTrack"></div>
+    <!-- vehicles rendered via JS -->
+    <div id="vehContainer" style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none"></div>
+    <canvas id="beamCanvas" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+    <div class="charge-label" id="chargeLabel">⚡ <span data-en="Charging active" data-id="Pengisian aktif">Charging active</span></div>
+  </div>
+
   <div class="stat-row">
-    <div class="stat"><div class="val" id="sSpeed">0</div><div class="lbl">Speed (km/h)</div></div>
-    <div class="stat"><div class="val" id="sBatt">45</div><div class="lbl">Battery (%)</div></div>
-    <div class="stat"><div class="val" id="sPower">0</div><div class="lbl">Power received (kW)</div></div>
+    <div class="stat"><div class="val" id="sSpeed">0</div><div class="lbl" data-en="Speed (km/h)" data-id="Kecepatan (km/j)">Speed (km/h)</div></div>
+    <div class="stat"><div class="val" id="sBatt">45</div><div class="lbl" data-en="Battery (%)" data-id="Baterai (%)">Battery (%)</div></div>
+    <div class="stat"><div class="val" id="sPower">0</div><div class="lbl" data-en="Power (kW)" data-id="Daya (kW)">Power (kW)</div></div>
+    <div class="stat"><div class="val" id="sRange">+0</div><div class="lbl" data-en="Range boost (km)" data-id="Tambah jangkauan (km)">Range boost (km)</div></div>
   </div>
   <div class="ctrl">
-    <button class="btn" id="btnRun" onclick="toggleSim()">▶ Run</button>
-    <span class="rl">Speed:</span>
-    <input type="range" id="speedSlider" min="10" max="80" value="30" oninput="setSpeed(this.value)">
-    <span class="rv" id="speedVal">30 km/h</span>
-    <span class="rl">Efficiency:</span>
+    <button class="btn" id="btnRun" onclick="toggleSim()">▶ <span data-en="Run" data-id="Jalankan">Run</span></button>
+    <span class="rl" data-en="Speed:" data-id="Kecepatan:">Speed:</span>
+    <input type="range" id="speedSlider" min="10" max="90" value="40" oninput="setSpeed(this.value)">
+    <span class="rv" id="speedVal">40 km/h</span>
+    <span class="rl" data-en="Efficiency:" data-id="Efisiensi:">Efficiency:</span>
     <input type="range" id="effSlider" min="60" max="95" value="85" oninput="setEff(this.value)">
     <span class="rv" id="effVal">85%</span>
   </div>
-  <p style="font-size:12px;color:#2a3a54;margin-top:10px">Blue zone = active DWPT segment. Only activates when a vehicle is directly above — safe & energy-efficient.</p>
+  <p style="font-size:12px;color:#2a3a54;margin-top:10px"
+     data-en="Each DWPT segment activates only when a vehicle is directly above — safe & efficient. Beam intensity reflects real-time power transfer."
+     data-id="Setiap segmen DWPT hanya aktif saat kendaraan berada di atasnya — aman & efisien. Intensitas beam mencerminkan transfer daya real-time.">
+    Each DWPT segment activates only when a vehicle is directly above — safe & efficient. Beam intensity reflects real-time power transfer.</p>
 </div>
 
 <!-- DAS SENSOR -->
 <div id="p-das" class="panel">
-  <h2>Distributed Acoustic Sensing (DAS) — Fiber Optic Nerve System</h2>
+  <h2 data-en="Distributed Acoustic Sensing — Fiber Optic Nerve System" data-id="Sensor Akustik Terdistribusi — Sistem Saraf Fiber Optik">Distributed Acoustic Sensing — Fiber Optic Nerve System</h2>
   <div class="das-wrap">
     <div class="das-road" id="dasRoad">
       <div class="fiber"></div>
       <div class="das-road-line"></div>
       <canvas id="dasWave" class="wave-canvas" style="position:absolute;top:0;left:0;height:70px;background:transparent"></canvas>
+      <div class="das-alert" id="dasAlert">⚠ INCIDENT DETECTED — 0.7s</div>
     </div>
     <div class="das-chart">
-      <div class="das-chart-title">Acoustic signal along fiber (real-time)</div>
+      <div class="das-chart-title" data-en="Acoustic signal along fiber (real-time)" data-id="Sinyal akustik sepanjang fiber (real-time)">Acoustic signal along fiber (real-time)</div>
       <canvas id="dasSignal" class="wave-canvas"></canvas>
     </div>
   </div>
   <div class="das-events">
-    <div class="das-card active" id="dc0" onclick="selectDAS(0)">
-      <div class="dc-icon">🚗</div>
-      <div class="dc-name">Vehicle detection</div>
-      <div class="dc-val" id="dv0">3 vehicles</div>
-    </div>
-    <div class="das-card" id="dc1" onclick="selectDAS(1)">
-      <div class="dc-icon">⚖️</div>
-      <div class="dc-name">Axle weight</div>
-      <div class="dc-val" id="dv1">2.4 tons avg</div>
-    </div>
-    <div class="das-card" id="dc2" onclick="selectDAS(2)">
-      <div class="dc-icon">⚠️</div>
-      <div class="dc-name">Incident alert</div>
-      <div class="dc-val" id="dv2">&lt;1 sec response</div>
-    </div>
-    <div class="das-card" id="dc3" onclick="selectDAS(3)">
-      <div class="dc-icon">🔍</div>
-      <div class="dc-name">Micro-crack</div>
-      <div class="dc-val" id="dv3">Self-monitoring</div>
-    </div>
+    <div class="das-card active" id="dc0" onclick="selectDAS(0)"><div class="dc-icon">🚗</div>
+      <div class="dc-name" data-en="Vehicle detection" data-id="Deteksi kendaraan">Vehicle detection</div>
+      <div class="dc-val" id="dv0">3 vehicles</div></div>
+    <div class="das-card" id="dc1" onclick="selectDAS(1)"><div class="dc-icon">⚖️</div>
+      <div class="dc-name" data-en="Axle weight" data-id="Berat aksle">Axle weight</div>
+      <div class="dc-val" id="dv1">2.4 tons avg</div></div>
+    <div class="das-card" id="dc2" onclick="selectDAS(2)"><div class="dc-icon">⚠️</div>
+      <div class="dc-name" data-en="Incident alert" data-id="Alert insiden">Incident alert</div>
+      <div class="dc-val" id="dv2">&lt;1 sec</div></div>
+    <div class="das-card" id="dc3" onclick="selectDAS(3)"><div class="dc-icon">🔍</div>
+      <div class="dc-name" data-en="Micro-crack" data-id="Retakan mikro">Micro-crack</div>
+      <div class="dc-val" id="dv3" data-en="Self-monitoring" data-id="Pemantauan mandiri">Self-monitoring</div></div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-top:10px">The fiber optic cable embedded in Layer 3 acts as a continuous 1D sensor array. Each disturbance in the road creates a unique acoustic signature that is decoded in real-time.</p>
+  <button class="accident-btn" onclick="playAccident()">⚡ <span data-en="Simulate Accident Detection" data-id="Simulasi Deteksi Kecelakaan">Simulate Accident Detection</span></button>
+  <p style="font-size:12px;color:var(--muted);margin-top:10px"
+     data-en="The fiber optic cable acts as a continuous 1D sensor. Each disturbance creates a unique acoustic signature decoded in real-time."
+     data-id="Kabel fiber optik berfungsi sebagai sensor 1D kontinu. Setiap gangguan menciptakan tanda akustik unik yang didekode secara real-time.">
+    The fiber optic cable acts as a continuous 1D sensor. Each disturbance creates a unique acoustic signature decoded in real-time.</p>
 </div>
 
-<!-- TEG HEAT FLOW -->
+<!-- TEG -->
 <div id="p-teg" class="panel">
-  <h2>Thermoelectric Generator — Heat Harvesting Animation</h2>
+  <h2 data-en="Thermoelectric Generator — Heat Harvesting" data-id="Generator Termoelektrik — Panen Panas">Thermoelectric Generator — Heat Harvesting</h2>
   <div class="teg-wrap">
     <canvas id="tegCanvas" class="teg-canvas"></canvas>
     <div class="teg-ctrl">
-      <span class="rl">Sun intensity:</span>
+      <span class="rl" data-en="Sun intensity:" data-id="Intensitas matahari:">Sun intensity:</span>
       <input type="range" id="sunSlider" min="0" max="100" value="70" oninput="setSun(this.value)" style="flex:1;min-width:80px">
       <span class="rv" id="sunVal">70%</span>
-      <span class="rl">Traffic load:</span>
+      <span class="rl" data-en="Traffic load:" data-id="Beban lalu lintas:">Traffic load:</span>
       <input type="range" id="trafficSlider" min="0" max="100" value="50" oninput="setTraffic(this.value)" style="flex:1;min-width:80px">
       <span class="rv" id="trafficVal">50%</span>
       <div class="teg-stat">ΔT <span id="tegDT">42°C</span></div>
-      <div class="teg-stat">Output <span id="tegOut">18W/m²</span></div>
+      <div class="teg-stat"><span data-en="Output" data-id="Output">Output</span> <span id="tegOut">18W/m²</span></div>
     </div>
   </div>
-  <p style="font-size:12px;color:var(--muted)">The TEG harvests the temperature difference (ΔT) between the hot asphalt surface and the cooler subgrade beneath. Heat convection currents (orange arrows) visualize energy flow from surface to generator module, then to the power bus.</p>
 </div>
 
 <!-- ROADMAP -->
 <div id="p-roadmap" class="panel">
-  <h2>Development & Business Roadmap</h2>
+  <h2 data-en="Development & Business Roadmap" data-id="Peta Jalan Pengembangan & Bisnis">Development & Business Roadmap</h2>
   <div class="timeline">
     <div class="titem"><div class="tcard">
       <div class="tyear">Phase 1 · Years 0–5</div>
-      <h3>Smart Lane Pioneer</h3>
-      <p>Deploy 1–5 km motorcycle lanes on dense urban arterials. DWPT + DAS as a pilot project for city governments. Prove the technology, generate revenue through data subscriptions and energy contracts.</p>
-      <a href="eco-calculator.html" class="btn-cta">🌿 Environment Impact →</a>
+      <h3 data-en="Smart Lane Pioneer" data-id="Smart Lane Pioneer">Smart Lane Pioneer</h3>
+      <p data-en="Deploy 1–5 km motorcycle lanes on dense urban arterials. DWPT + DAS as a city government pilot. Revenue through data subscriptions and energy contracts."
+         data-id="Jalur motor 1–5 km di arteri kota padat. DWPT + DAS sebagai proyek percontohan pemkot. Pendapatan dari langganan data dan kontrak energi.">
+        Deploy 1–5 km motorcycle lanes on dense urban arterials. DWPT + DAS as a city government pilot. Revenue through data subscriptions and energy contracts.</p>
+        <a href="eco-calculator.html" class="btn-cta">🌿 Environment Impact →</a>
       <div class="tags"><span class="tag">DWPT</span><span class="tag">DAS</span><span class="tag">Gov. contracts</span><span class="tag">Data subscription</span></div>
     </div></div>
     <div class="titem"><div class="tcard">
       <div class="tyear">Phase 2 · Years 5–10</div>
-      <h3>Smart Corridor Expansion</h3>
-      <p>Dynamic DWPT corridors, self-healing polymer asphalt, basic TEG energy harvesting. Target electric bus operators and last-mile logistics. Revenue through technology licensing and recurring energy fees.</p>
+      <h3 data-en="Smart Corridor Expansion" data-id="Ekspansi Koridor Pintar">Smart Corridor Expansion</h3>
+      <p data-en="Dynamic DWPT corridors, self-healing polymer asphalt, TEG harvesting. Electric bus operators and last-mile logistics. Technology licensing and recurring energy fees."
+         data-id="Koridor DWPT dinamis, aspal self-healing, panen energi TEG. Operator bus listrik dan logistik last-mile. Lisensi teknologi dan recurring fee energi.">
+        Dynamic DWPT corridors, self-healing polymer asphalt, TEG harvesting. Electric bus operators and last-mile logistics. Technology licensing and recurring energy fees.</p>
       <div class="tags"><span class="tag">Self-Healing</span><span class="tag">TEG</span><span class="tag">Tech licensing</span><span class="tag">Recurring fee</span></div>
     </div></div>
     <div class="titem"><div class="tcard">
       <div class="tyear">Phase 3 · Years 10–20</div>
-      <h3>Smart Runway</h3>
-      <p>High-precision surface with high-power DWPT for Ground-Effect pods. Serves intercity logistics hubs and freight companies. Revenue from runway leasing and per-km energy billing.</p>
+      <h3 data-en="Smart Runway" data-id="Smart Runway">Smart Runway</h3>
+      <p data-en="High-precision surface with high-power DWPT for Ground-Effect pods. Intercity logistics hubs. Revenue from runway leasing and per-km energy billing."
+         data-id="Permukaan presisi daya tinggi untuk pod Ground-Effect. Pusat logistik antarkota. Pendapatan dari sewa runway dan tagihan energi per km.">
+        High-precision surface with high-power DWPT for Ground-Effect pods. Intercity logistics hubs. Revenue from runway leasing and per-km energy billing.</p>
       <div class="tags"><span class="tag">Ground-Effect Pod</span><span class="tag">Runway lease</span><span class="tag">Energy per km</span></div>
     </div></div>
     <div class="titem"><div class="tcard">
       <div class="tyear">Phase 4 · 20+ Years</div>
-      <h3>Urban Smart Grid</h3>
-      <p>Photonic metamaterial asphalt, optional maglev integration. Becomes the national infrastructure standard and an active node in the urban electricity grid.</p>
+      <h3 data-en="Urban Smart Grid" data-id="Smart Grid Perkotaan">Urban Smart Grid</h3>
+      <p data-en="Photonic metamaterial asphalt, optional maglev integration. National infrastructure standard and active urban electricity grid node."
+         data-id="Aspal metamaterial fotonik, integrasi maglev opsional. Standar infrastruktur nasional dan node aktif jaringan listrik kota.">
+        Photonic metamaterial asphalt, optional maglev integration. National infrastructure standard and active urban electricity grid node.</p>
       <div class="tags"><span class="tag">Metamaterial</span><span class="tag">Maglev</span><span class="tag">National grid</span></div>
     </div></div>
   </div>
@@ -351,135 +211,341 @@ body.fs-mode .hero{min-height:40px}
 
 <!-- IMPACT DATA -->
 <div id="p-data" class="panel">
-  <h2>Projected Impact & Revenue Potential</h2>
+  <h2 data-en="Projected Impact & Revenue Potential" data-id="Proyeksi Dampak & Potensi Pendapatan">Projected Impact & Revenue Potential</h2>
   <div class="meter-grid">
-    <div class="meter">
-      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#3a7aff" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="25"/></svg>
-      <div class="mval">150 kWh</div><div class="mlabel">Energy harvested / day / km</div>
-    </div>
-    <div class="meter">
-      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#30c080" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="50"/></svg>
-      <div class="mval">–40%</div><div class="mlabel">CO₂ emission reduction</div>
-    </div>
-    <div class="meter">
-      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#f0a020" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="20"/></svg>
-      <div class="mval">&lt;1 sec</div><div class="mlabel">Incident detection (DAS)</div>
-    </div>
-    <div class="meter">
-      <svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#20b8c0" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="15"/></svg>
-      <div class="mval">–30%</div><div class="mlabel">EV battery cost reduction</div>
-    </div>
+    <div class="meter"><svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#3a7aff" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="25"/></svg>
+      <div class="mval">150 kWh</div><div class="mlabel" data-en="Energy harvested / day / km" data-id="Energi dipanen / hari / km">Energy harvested / day / km</div></div>
+    <div class="meter"><svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#30c080" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="50"/></svg>
+      <div class="mval">–40%</div><div class="mlabel" data-en="CO₂ emission reduction" data-id="Reduksi emisi CO₂">CO₂ emission reduction</div></div>
+    <div class="meter"><svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#f0a020" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="20"/></svg>
+      <div class="mval">&lt;1 sec</div><div class="mlabel" data-en="Incident detection (DAS)" data-id="Deteksi insiden (DAS)">Incident detection (DAS)</div></div>
+    <div class="meter"><svg width="80" height="50" viewBox="0 0 80 50"><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#1a2030" stroke-width="7" stroke-linecap="round"/><path d="M8 46 A32 32 0 0 1 72 46" fill="none" stroke="#20b8c0" stroke-width="7" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="15"/></svg>
+      <div class="mval">–30%</div><div class="mlabel" data-en="EV battery cost reduction" data-id="Reduksi biaya baterai EV">EV battery cost reduction</div></div>
   </div>
   <div class="chart-wrap">
-    <div class="chart-title">Revenue potential per phase (relative scale)</div>
-    <div class="bar-row"><span class="bar-label">Phase 1 (0–5y)</span><div class="bar-track"><div class="bar-fill" style="width:18%;background:#3a7aff"><span class="bar-val">Pilot</span></div></div></div>
-    <div class="bar-row"><span class="bar-label">Phase 2 (5–10y)</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:#5a9aff"><span class="bar-val">Mid-scale</span></div></div></div>
-    <div class="bar-row"><span class="bar-label">Phase 3 (10–20y)</span><div class="bar-track"><div class="bar-fill" style="width:73%;background:#20b8c0"><span class="bar-val">Large scale</span></div></div></div>
-    <div class="bar-row"><span class="bar-label">Phase 4 (20+y)</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#30c080"><span class="bar-val">National grid</span></div></div></div>
+    <div class="chart-title" data-en="Revenue potential per phase" data-id="Potensi pendapatan per fase">Revenue potential per phase</div>
+    <div class="bar-row"><span class="bar-label" data-en="Phase 1 (0–5y)" data-id="Fase 1 (0–5th)">Phase 1 (0–5y)</span><div class="bar-track"><div class="bar-fill" style="width:18%;background:#3a7aff"><span class="bar-val">Pilot</span></div></div></div>
+    <div class="bar-row"><span class="bar-label" data-en="Phase 2 (5–10y)" data-id="Fase 2 (5–10th)">Phase 2 (5–10y)</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:#5a9aff"><span class="bar-val">Mid-scale</span></div></div></div>
+    <div class="bar-row"><span class="bar-label" data-en="Phase 3 (10–20y)" data-id="Fase 3 (10–20th)">Phase 3 (10–20y)</span><div class="bar-track"><div class="bar-fill" style="width:73%;background:#20b8c0"><span class="bar-val">Large scale</span></div></div></div>
+    <div class="bar-row"><span class="bar-label" data-en="Phase 4 (20+y)" data-id="Fase 4 (20+th)">Phase 4 (20+y)</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#30c080"><span class="bar-val">National grid</span></div></div></div>
   </div>
   <div class="chart-wrap">
-    <div class="chart-title">Multi-utility revenue streams</div>
-    <div class="bar-row"><span class="bar-label">Energy (electricity)</span><div class="bar-track"><div class="bar-fill" style="width:70%;background:#3a7aff"><span class="bar-val">70%</span></div></div></div>
-    <div class="bar-row"><span class="bar-label">Traffic data</span><div class="bar-track"><div class="bar-fill" style="width:45%;background:#f0a020"><span class="bar-val">45%</span></div></div></div>
-    <div class="bar-row"><span class="bar-label">Infrastructure lease</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:#30c080"><span class="bar-val">35%</span></div></div></div>
-    <div class="bar-row"><span class="bar-label">Tech licensing</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#20b8c0"><span class="bar-val">25%</span></div></div></div>
+    <div class="chart-title" data-en="Multi-utility revenue streams" data-id="Sumber pendapatan multi-utilitas">Multi-utility revenue streams</div>
+    <div class="bar-row"><span class="bar-label" data-en="Energy (electricity)" data-id="Energi (listrik)">Energy (electricity)</span><div class="bar-track"><div class="bar-fill" style="width:70%;background:#3a7aff"><span class="bar-val">70%</span></div></div></div>
+    <div class="bar-row"><span class="bar-label" data-en="Traffic data" data-id="Data lalu lintas">Traffic data</span><div class="bar-track"><div class="bar-fill" style="width:45%;background:#f0a020"><span class="bar-val">45%</span></div></div></div>
+    <div class="bar-row"><span class="bar-label" data-en="Infrastructure lease" data-id="Sewa infrastruktur">Infrastructure lease</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:#30c080"><span class="bar-val">35%</span></div></div></div>
+    <div class="bar-row"><span class="bar-label" data-en="Tech licensing" data-id="Lisensi teknologi">Tech licensing</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#20b8c0"><span class="bar-val">25%</span></div></div></div>
+  </div>
+  <!-- Compliance badges -->
+  <div class="badge-row">
+    <div class="badge"><span class="bicon">✅</span><div><b>SAE J2954</b><span class="btxt">WPT Compatible</span></div></div>
+    <div class="badge"><span class="bicon">🛡️</span><div><b>ICNIRP 2020</b><span class="btxt">EMF Safety Compliant</span></div></div>
+    <div class="badge"><span class="bicon">📋</span><div><b>ISO 14040</b><span class="btxt">LCA Ready</span></div></div>
+    <div class="badge"><span class="bicon">📡</span><div><b>IEC 61000</b><span class="btxt">EMC Certified</span></div></div>
+    <div class="badge"><span class="bicon">🌿</span><div><b>Zero Emission</b><span class="btxt">Carbon Neutral Target</span></div></div>
   </div>
 </div>
 
 <script>
-// ─── Panel ───────────────────────────────────────────────────────────────────
-function showPanel(id, el){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('p-'+id).classList.add('active');
-  if(el) el.classList.add('active');
-  if(id==='sim' && !simRunning) startSim();
-  if(id==='das') startDAS();
-  if(id==='teg') startTEG();
+// ── LANGUAGE ──────────────────────────────────────────────────────────────────
+let curLang = 'en';
+function setLang(lang, btn) {
+  curLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + lang);
+  });
+  // re-apply active tab text
+  document.querySelectorAll('.tab').forEach(t => {
+    if(t.getAttribute('data-'+lang)) t.textContent = t.getAttribute('data-'+lang);
+  });
 }
 
-// ─── Fullscreen ───────────────────────────────────────────────────────────────
-function toggleFS(){
-  const el = document.documentElement;
-  const isFS = document.fullscreenElement;
-  if(!isFS){ el.requestFullscreen && el.requestFullscreen(); }
-  else { document.exitFullscreen && document.exitFullscreen(); }
+// ── FULLSCREEN ────────────────────────────────────────────────────────────────
+function toggleFS() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
 }
-document.addEventListener('fullscreenchange',()=>{
-  const isFS = !!document.fullscreenElement;
-  document.getElementById('fsIcon').textContent = isFS ? '✕' : '⛶';
-  document.getElementById('fsLabel').textContent = isFS ? 'Exit' : 'Fullscreen';
-  document.body.classList.toggle('fs-mode', isFS);
+document.addEventListener('fullscreenchange', () => {
+  const fs = !!document.fullscreenElement;
+  document.getElementById('fsLabel').textContent = fs ? 'Exit' : 'Fullscreen';
 });
 
-// ─── Layer detail ─────────────────────────────────────────────────────────────
-const layerInfo=[
-  {title:'Surface Layer (Wearing Course)',items:['Fine non-magnetic asphalt concrete','Near-term: Graphene/CNT heat-absorbing coating supplying the thermoelectric layer','Long-term: Photonic metamaterial structure (inspired by butterfly wings) — >95% light absorption','Reduces urban heat island: asphalt designed to radiatively cool itself']},
-  {title:'Power Transfer Layer',items:['Litz Wire type DD (Double-D) coils embedded in the road bed','Operating frequency: 85 kHz — SAE J2954 standard (compatible with all major EV platforms)','Segmented Track: only the segment directly under a vehicle activates','Result: no standing electromagnetic field — safe for pedestrians and cyclists']},
-  {title:'Sensor Layer — Nerve System',items:['Distributed Acoustic Sensing (DAS) via embedded fiber optic cable','Detects: vehicle position, speed, axle weight, traffic density in real-time','Incident response latency: <1 second — automatic alert to traffic management center','Self-monitoring: detects micro-cracks in asphalt before structural failure occurs']},
-  {title:'Energy Harvest Layer',items:['Thermoelectric Generator (TEG): harvests the ΔT between hot asphalt surface and cool subgrade','TEG output powers streetlights, sensors, and EV charging auxiliary systems','Piezoelectric transducers: capture mechanical energy from vehicle pressure at high-traffic nodes','Enables road segments to become active energy prosumers, feeding local microgrids']},
+// ── PANELS ────────────────────────────────────────────────────────────────────
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'sim' && !simRunning) startSim();
+  if (id === 'das') startDAS();
+  if (id === 'teg') startTEG();
+}
+
+// ── LAYER ARCHITECTURE ────────────────────────────────────────────────────────
+const layerInfoData = [
+  {en:'Surface Layer (Wearing Course)',id:'Lapisan Permukaan',
+   items:{en:['Fine non-magnetic asphalt concrete','Graphene/CNT heat-absorbing coating — feeds thermoelectric layer','Long-term: photonic metamaterial >95% light absorption','Radiative cooling — reduces urban heat island effect'],
+          id:['Aspal beton halus non-magnetik','Coating Graphene/CNT penyerap panas — menyuplai lapisan termoelektrik','Jangka panjang: metamaterial fotonik >95% absorpsi cahaya','Pendinginan radiatif — mengurangi urban heat island']}},
+  {en:'Power Transfer Layer',id:'Lapisan Transfer Daya',
+   items:{en:['Litz Wire type DD (Double-D) coils embedded in road bed','85 kHz — SAE J2954 standard, compatible with all major EV platforms','Segmented track: only activates directly under a vehicle','No standing EM field — safe for pedestrians and cyclists'],
+          id:['Kumparan Litz Wire tipe DD tertanam di badan jalan','85 kHz — standar SAE J2954, kompatibel semua platform EV utama','Segmented track: hanya aktif tepat di bawah kendaraan','Tidak ada medan EM statis — aman untuk pejalan kaki dan pesepeda']}},
+  {en:'Sensor Layer — Nerve System',id:'Lapisan Sensor — Sistem Saraf',
+   items:{en:['Distributed Acoustic Sensing (DAS) via embedded fiber optic','Detects: vehicle position, speed, axle weight in real-time','Incident response: <1 second automatic alert','Self-monitoring: micro-crack detection before structural failure'],
+          id:['Distributed Acoustic Sensing (DAS) via fiber optik tertanam','Mendeteksi: posisi kendaraan, kecepatan, berat aksle real-time','Respons insiden: <1 detik alert otomatis','Pemantauan mandiri: deteksi retakan mikro sebelum kerusakan struktur']}},
+  {en:'Energy Harvest Layer',id:'Lapisan Panen Energi',
+   items:{en:['TEG harvests ΔT between hot asphalt surface and cool subgrade','Powers streetlights, sensors, EV auxiliary charging','Piezoelectric captures mechanical pressure energy at high-traffic nodes','Road as active energy prosumer feeding local microgrids'],
+          id:['TEG memanen ΔT antara permukaan aspal panas dan subgrade dingin','Menyuplai lampu jalan, sensor, dan pengisian EV tambahan','Piezoelektrik menangkap energi tekanan mekanik di titik lalu lintas padat','Jalan sebagai prosumer energi aktif yang menyuplai mikrogrid lokal']}}
 ];
-function selectLayer(i){
-  document.querySelectorAll('.layer').forEach((l,j)=>{l.classList.remove('hi');if(j===i)l.classList.add('hi');});
-  const d=layerInfo[i];
-  document.getElementById('layer-detail').innerHTML=`<p style="font-size:13px;font-weight:500;color:#c8d8f8;margin-bottom:10px">${d.title}</p>${d.items.map(it=>`<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--accent);margin-top:1px">▸</span><span style="font-size:12px;color:#6a7a9a;line-height:1.65">${it}</span></div>`).join('')}`;
+function selectLayer(i) {
+  document.querySelectorAll('.layer').forEach((l,j) => { l.classList.remove('hi'); if(j===i) l.classList.add('hi'); });
+  const d = layerInfoData[i];
+  const title = d[curLang] || d.en;
+  const items = d.items[curLang] || d.items.en;
+  document.getElementById('layer-detail').innerHTML =
+    `<p style="font-size:13px;font-weight:500;color:#c8d8f8;margin-bottom:10px">${title}</p>` +
+    items.map(it=>`<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--accent);margin-top:1px">▸</span><span style="font-size:12px;color:#6a7a9a;line-height:1.65">${it}</span></div>`).join('');
 }
 
-// ─── DWPT Simulation ──────────────────────────────────────────────────────────
-let simRunning=false,simPos=10,simSpeed=30,simEff=85,simBatt=45,simInterval=null;
-function startSim(){if(!simRunning){simRunning=true;document.getElementById('btnRun').textContent='⏸ Pause';runSim();}}
-function toggleSim(){simRunning=!simRunning;document.getElementById('btnRun').textContent=simRunning?'⏸ Pause':'▶ Run';if(simRunning)runSim();}
-function setSpeed(v){simSpeed=parseInt(v);document.getElementById('speedVal').textContent=v+' km/h';}
-function setEff(v){simEff=parseInt(v);document.getElementById('effVal').textContent=v+'%';}
-function runSim(){
-  if(simInterval)clearInterval(simInterval);
-  simInterval=setInterval(()=>{
-    if(!simRunning){clearInterval(simInterval);return;}
-    simPos+=simSpeed/900;
-    if(simPos>92)simPos=5;
-    document.getElementById('simCar').style.left=simPos+'%';
-    document.getElementById('chargeZone').style.left=(simPos-9)+'%';
-    const charging=simPos>15&&simPos<80;
-    const power=charging?Math.round(simEff*.22):0;
-    document.getElementById('sSpeed').textContent=simSpeed;
-    document.getElementById('sPower').textContent=power;
-    document.getElementById('chargeLabel').style.opacity=charging?'1':'0';
-    if(charging)simBatt=Math.min(100,simBatt+.025);
-    document.getElementById('sBatt').textContent=Math.round(simBatt);
-  },40);
+// ── DWPT SIM v3 ───────────────────────────────────────────────────────────────
+const NUM_SEGS = 9;
+let simRunning = false, simPos = 8, simSpeed = 40, simEff = 85, simBatt = 45, simRange = 0, simInterval = null;
+let curVehicle = 'motor';
+
+// Build segments
+const segTrack = document.getElementById('segTrack');
+const segs = [];
+for (let i = 0; i < NUM_SEGS; i++) {
+  const s = document.createElement('div');
+  s.className = 'seg';
+  s.style.left = (i * (100/NUM_SEGS)) + '%';
+  s.style.width = (100/NUM_SEGS) + '%';
+  segTrack.appendChild(s);
+  segs.push(s);
 }
 
-// ─── DAS Sensor ───────────────────────────────────────────────────────────────
-let dasRunning=false,dasT=0,dasVehicles=[{x:.2,speed:.003},{x:.55,speed:.002},{x:.8,speed:.0025}];
-let dasMode=0;
+// Vehicle SVGs
+const vehSVGs = {
+  motor: `<svg class="motor-svg" viewBox="0 0 56 32" fill="none">
+    <ellipse cx="10" cy="25" rx="8" ry="8" stroke="#aac4ff" stroke-width="2.5" fill="#0a1828"/>
+    <ellipse cx="46" cy="25" rx="8" ry="8" stroke="#aac4ff" stroke-width="2.5" fill="#0a1828"/>
+    <ellipse cx="10" cy="25" rx="4" ry="4" fill="#1e3060"/>
+    <ellipse cx="46" cy="25" rx="4" ry="4" fill="#1e3060"/>
+    <rect x="14" y="12" width="22" height="13" rx="4" fill="#3a7aff"/>
+    <path d="M36 14 L50 14 L50 20 L36 20Z" fill="#2a5aee"/>
+    <rect x="8" y="15" width="8" height="8" rx="2" fill="#2a5aee"/>
+    <circle cx="26" cy="9" r="5" fill="#2a5aee"/>
+    <rect x="22" y="7" width="8" height="4" rx="1" fill="#7ab0ff" opacity=".6"/>
+    <rect x="50" y="16" width="4" height="2" rx="1" fill="#ffcc44"/>
+  </svg>`,
+  car: `<svg class="motor-svg" style="width:64px;height:34px" viewBox="0 0 64 34" fill="none">
+    <ellipse cx="13" cy="27" rx="8" ry="8" stroke="#aac4ff" stroke-width="2.5" fill="#0a1828"/>
+    <ellipse cx="51" cy="27" rx="8" ry="8" stroke="#aac4ff" stroke-width="2.5" fill="#0a1828"/>
+    <ellipse cx="13" cy="27" rx="4" ry="4" fill="#1e3060"/><ellipse cx="51" cy="27" rx="4" ry="4" fill="#1e3060"/>
+    <rect x="4" y="14" width="56" height="14" rx="5" fill="#3a7aff"/>
+    <path d="M14 14 L20 5 L44 5 L52 14Z" fill="#2a5aee"/>
+    <rect x="22" y="6" width="20" height="8" rx="2" fill="#7ab0ff" opacity=".5"/>
+    <rect x="56" y="17" width="5" height="3" rx="1" fill="#ffcc44"/>
+    <rect x="3" y="17" width="3" height="3" rx="1" fill="#ff4444" opacity=".6"/>
+  </svg>`,
+  bus: `<svg class="motor-svg" style="width:90px;height:44px" viewBox="0 0 90 44" fill="none">
+    <ellipse cx="15" cy="35" rx="9" ry="9" stroke="#aac4ff" stroke-width="2.5" fill="#0a1828"/>
+    <ellipse cx="75" cy="35" rx="9" ry="9" stroke="#aac4ff" stroke-width="2.5" fill="#0a1828"/>
+    <ellipse cx="15" cy="35" rx="4" ry="4" fill="#1e3060"/><ellipse cx="75" cy="35" rx="4" ry="4" fill="#1e3060"/>
+    <rect x="3" y="5" width="84" height="32" rx="5" fill="#3a7aff"/>
+    <rect x="7" y="8" width="13" height="12" rx="2" fill="#7ab0ff" opacity=".55"/>
+    <rect x="24" y="8" width="13" height="12" rx="2" fill="#7ab0ff" opacity=".55"/>
+    <rect x="41" y="8" width="13" height="12" rx="2" fill="#7ab0ff" opacity=".55"/>
+    <rect x="58" y="8" width="13" height="12" rx="2" fill="#7ab0ff" opacity=".55"/>
+    <rect x="75" y="8" width="8" height="12" rx="2" fill="#7ab0ff" opacity=".55"/>
+    <rect x="83" y="17" width="6" height="4" rx="1" fill="#ffcc44"/>
+    <rect x="1" y="17" width="4" height="4" rx="1" fill="#ff4444" opacity=".6"/>
+    <text x="10" y="30" font-size="7" fill="#e0eaff" opacity=".7">E-BUS</text>
+  </svg>`,
+  pod: `<svg class="motor-svg" style="width:80px;height:26px" viewBox="0 0 80 26" fill="none">
+    <path d="M4 16 Q4 4 18 4 L62 4 Q76 4 76 16 L76 20 Q76 24 62 24 L18 24 Q4 24 4 20Z" fill="#20b8c0"/>
+    <ellipse cx="40" cy="4" rx="22" ry="8" fill="#1a9aaa" opacity=".45"/>
+    <rect x="14" y="9" width="52" height="10" rx="5" fill="#0a7080" opacity=".5"/>
+    <rect x="8" y="17" width="8" height="4" rx="2" fill="#60d8e0" opacity=".5"/>
+    <rect x="64" y="17" width="8" height="4" rx="2" fill="#60d8e0" opacity=".5"/>
+    <text x="28" y="18" font-size="6" fill="#e0ffff" opacity=".8">GROUND-EFFECT</text>
+  </svg>`
+};
+
+const vehSpecs = {
+  motor: {w:52, h:32, bottom:91, power:1.0, label:'Motor EV'},
+  car:   {w:68, h:34, bottom:91, power:1.6, label:'EV Car'},
+  bus:   {w:92, h:44, bottom:91, power:3.2, label:'E-Bus'},
+  pod:   {w:82, h:26, bottom:93, power:4.5, label:'Ground-Effect Pod'},
+};
+
+function selectVehicle(type, btn) {
+  curVehicle = type;
+  document.querySelectorAll('.vbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVehicle();
+}
+
+let vehEl = null;
+function renderVehicle() {
+  const c = document.getElementById('vehContainer');
+  c.innerHTML = '';
+  const spec = vehSpecs[curVehicle];
+  vehEl = document.createElement('div');
+  vehEl.className = 'vehicle';
+  vehEl.style.bottom = spec.bottom + 'px';
+  vehEl.style.left = simPos + '%';
+  vehEl.innerHTML = vehSVGs[curVehicle];
+  c.appendChild(vehEl);
+}
+
+// Beam canvas
+const beamCanvas = document.getElementById('beamCanvas');
+const beamCtx = beamCanvas.getContext('2d');
+function resizeBeam() {
+  const sc = document.getElementById('simScene');
+  beamCanvas.width = sc.offsetWidth;
+  beamCanvas.height = sc.offsetHeight;
+}
+
+// Stars
+const starCanvas = document.getElementById('starCanvas');
+const starCtx = starCanvas.getContext('2d');
+function drawStars() {
+  const sc = document.getElementById('simScene');
+  starCanvas.width = sc.offsetWidth; starCanvas.height = 110;
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random() * starCanvas.width, y = Math.random() * 100;
+    const r = Math.random() * 1.2;
+    starCtx.beginPath(); starCtx.arc(x, y, r, 0, Math.PI*2);
+    starCtx.fillStyle = `rgba(180,210,255,${0.2+Math.random()*.5})`; starCtx.fill();
+  }
+}
+
+function drawBeam(cx, power, h) {
+  beamCtx.clearRect(0, 0, beamCanvas.width, beamCanvas.height);
+  if (!cx) return;
+  const bh = 60 * power;
+  const by = beamCanvas.height - 91;
+  const grd = beamCtx.createLinearGradient(cx, by - bh, cx, by);
+  grd.addColorStop(0, 'rgba(58,122,255,0)');
+  grd.addColorStop(0.5, `rgba(58,122,255,${0.3 * power})`);
+  grd.addColorStop(1, `rgba(100,180,255,${0.7 * power})`);
+  beamCtx.fillStyle = grd;
+  const w = 30 * power;
+  beamCtx.beginPath();
+  beamCtx.moveTo(cx - w/2, by);
+  beamCtx.lineTo(cx + w/2, by);
+  beamCtx.lineTo(cx + 4, by - bh);
+  beamCtx.lineTo(cx - 4, by - bh);
+  beamCtx.closePath();
+  beamCtx.fill();
+  // glow dot at top
+  const gd = beamCtx.createRadialGradient(cx, by-bh, 0, cx, by-bh, 18*power);
+  gd.addColorStop(0, `rgba(120,180,255,${0.6*power})`);
+  gd.addColorStop(1, 'rgba(58,122,255,0)');
+  beamCtx.fillStyle = gd;
+  beamCtx.beginPath(); beamCtx.arc(cx, by-bh, 18*power, 0, Math.PI*2); beamCtx.fill();
+}
+
+function startSim() {
+  resizeBeam(); drawStars(); renderVehicle();
+  if (!simRunning) { simRunning = true; document.getElementById('btnRun').querySelector('span').textContent = curLang==='id'?'Jeda':'Pause'; runSim(); }
+}
+function toggleSim() {
+  simRunning = !simRunning;
+  document.getElementById('btnRun').querySelector('span').textContent = simRunning ? (curLang==='id'?'Jeda':'Pause') : (curLang==='id'?'Jalankan':'Run');
+  if (simRunning) runSim();
+  else { beamCtx.clearRect(0,0,beamCanvas.width,beamCanvas.height); segs.forEach(s=>{s.classList.remove('lit','lit-strong');}); }
+}
+function setSpeed(v) { simSpeed=parseInt(v); document.getElementById('speedVal').textContent=v+' km/h'; }
+function setEff(v) { simEff=parseInt(v); document.getElementById('effVal').textContent=v+'%'; }
+
+function runSim() {
+  if (simInterval) clearInterval(simInterval);
+  simInterval = setInterval(() => {
+    if (!simRunning) { clearInterval(simInterval); return; }
+    const spec = vehSpecs[curVehicle];
+    simPos += simSpeed / 800;
+    if (simPos > 94) simPos = 2;
+    if (vehEl) vehEl.style.left = simPos + '%';
+
+    // which seg is under vehicle?
+    const segIdx = Math.floor((simPos / 100) * NUM_SEGS);
+    segs.forEach((s, i) => {
+      const dist = Math.abs(i - segIdx);
+      s.classList.remove('lit', 'lit-strong');
+      if (dist === 0) s.classList.add('lit-strong');
+      else if (dist === 1) s.classList.add('lit');
+    });
+
+    // beam
+    const scW = document.getElementById('simScene').offsetWidth;
+    const vCenterX = (simPos / 100) * scW + spec.w / 2;
+    const charging = simPos > 5 && simPos < 90;
+    const pMult = spec.power * (simEff / 100);
+    drawBeam(charging ? vCenterX : null, pMult, spec.h);
+
+    const power = charging ? +(pMult * 18).toFixed(1) : 0;
+    document.getElementById('sSpeed').textContent = simSpeed;
+    document.getElementById('sPower').textContent = power;
+    document.getElementById('chargeLabel').style.opacity = charging ? '1' : '0';
+    if (charging) {
+      simBatt = Math.min(100, simBatt + 0.018 * pMult);
+      simRange += 0.002 * pMult;
+    }
+    document.getElementById('sBatt').textContent = Math.round(simBatt);
+    document.getElementById('sRange').textContent = '+' + simRange.toFixed(1);
+  }, 40);
+}
+
+// ── DAS ───────────────────────────────────────────────────────────────────────
+let dasRunning=false, dasT=0, dasMode=0, dasAccident=false, accTimer=0;
+const dasVehicles=[{x:.15,speed:.003},{x:.5,speed:.002},{x:.78,speed:.0028}];
+
 function selectDAS(i){dasMode=i;document.querySelectorAll('.das-card').forEach((c,j)=>c.classList.toggle('active',j===i));}
-function startDAS(){
-  if(dasRunning)return;
-  dasRunning=true;
-  const wCanvas=document.getElementById('dasWave');
-  const sCanvas=document.getElementById('dasSignal');
-  if(!wCanvas||!sCanvas)return;
-  wCanvas.width=wCanvas.offsetWidth||680;wCanvas.height=70;
-  sCanvas.width=sCanvas.offsetWidth||680;sCanvas.height=60;
-  const wCtx=wCanvas.getContext('2d');
-  const sCtx=sCanvas.getContext('2d');
-  function drawDAS(){
-    dasT+=.016;
+
+function playAccident() {
+  dasAccident = true; accTimer = 0;
+  document.getElementById('dasAlert').style.display = 'block';
+  document.querySelectorAll('.das-card').forEach(c=>c.classList.remove('alert-card'));
+  document.getElementById('dc2').classList.add('alert-card');
+  setTimeout(()=>{
+    document.getElementById('dasAlert').style.display='none';
+    document.querySelectorAll('.das-card').forEach(c=>c.classList.remove('alert-card'));
+    dasAccident=false;
+  }, 4000);
+}
+
+function startDAS() {
+  if (dasRunning) return; dasRunning = true;
+  const wC=document.getElementById('dasWave'), sC=document.getElementById('dasSignal');
+  if(!wC||!sC) return;
+  wC.width=wC.offsetWidth||680; wC.height=70;
+  sC.width=sC.offsetWidth||680; sC.height=60;
+  const wCtx=wC.getContext('2d'), sCtx=sC.getContext('2d');
+  function draw() {
+    dasT+=.016; accTimer+=.016;
     dasVehicles.forEach(v=>{v.x+=v.speed;if(v.x>1.1)v.x=-0.05;});
-    const W=wCanvas.width,H=70,SW=sCanvas.width,SH=60;
-    // road wave overlay
+    const W=wC.width, H=70, SW=sC.width, SH=60;
     wCtx.clearRect(0,0,W,H);
     dasVehicles.forEach(v=>{
       const cx=v.x*W;
-      const grad=wCtx.createRadialGradient(cx,H,2,cx,H,60);
-      grad.addColorStop(0,'rgba(32,184,192,.35)');
-      grad.addColorStop(1,'rgba(32,184,192,0)');
-      wCtx.fillStyle=grad;
-      wCtx.beginPath();wCtx.arc(cx,H,60,0,Math.PI*2);wCtx.fill();
+      const g=wCtx.createRadialGradient(cx,H,2,cx,H,60);
+      g.addColorStop(0,'rgba(32,184,192,.35)'); g.addColorStop(1,'rgba(32,184,192,0)');
+      wCtx.fillStyle=g; wCtx.beginPath(); wCtx.arc(cx,H,60,0,Math.PI*2); wCtx.fill();
     });
-    // signal wave
-    sCtx.fillStyle='#050c18';sCtx.fillRect(0,0,SW,SH);
-    sCtx.beginPath();sCtx.strokeStyle='#20b8c0';sCtx.lineWidth=1.5;
+    if(dasAccident) {
+      const cx=(0.45+Math.sin(accTimer*40)*.002)*W;
+      const g2=wCtx.createRadialGradient(cx,H/2,2,cx,H/2,40);
+      g2.addColorStop(0,'rgba(255,80,80,.5)'); g2.addColorStop(1,'rgba(255,80,80,0)');
+      wCtx.fillStyle=g2; wCtx.beginPath(); wCtx.arc(cx,H/2,40,0,Math.PI*2); wCtx.fill();
+    }
+    sCtx.fillStyle='#050c18'; sCtx.fillRect(0,0,SW,SH);
+    sCtx.beginPath();
+    sCtx.strokeStyle = dasAccident ? '#ff5050' : '#20b8c0';
+    sCtx.lineWidth=1.5;
     for(let x=0;x<SW;x++){
       let y=SH/2;
       dasVehicles.forEach(v=>{
@@ -487,137 +553,94 @@ function startDAS(){
         const amp=Math.max(0,1-dist*8)*22;
         y+=Math.sin(dasT*8+x*.04)*amp*(dasMode===0?1:dasMode===1?.7:.5);
       });
+      if(dasAccident) y+=Math.sin(dasT*30+x*.1)*(28*(1-Math.min(1,accTimer/1.5)));
       y+=Math.sin(dasT*3+x*.01)*3;
-      if(x===0)sCtx.moveTo(x,y);else sCtx.lineTo(x,y);
+      if(x===0) sCtx.moveTo(x,y); else sCtx.lineTo(x,y);
     }
     sCtx.stroke();
-    // update cards
-    const cnt=dasVehicles.length;
-    document.getElementById('dv0').textContent=cnt+' vehicle'+(cnt!==1?'s':'');
+    document.getElementById('dv0').textContent=dasVehicles.length+' vehicles';
     document.getElementById('dv1').textContent=(2.1+Math.sin(dasT*.5)*.4).toFixed(1)+' tons avg';
-    requestAnimationFrame(drawDAS);
+    requestAnimationFrame(draw);
   }
-  drawDAS();
+  draw();
 }
 
-// ─── TEG Heat ────────────────────────────────────────────────────────────────
-let tegRunning=false,tegT=0,sunInt=70,trafficInt=50;
+// ── TEG ───────────────────────────────────────────────────────────────────────
+let tegRunning=false, tegT=0, sunInt=70, trafficInt=50;
 function setSun(v){sunInt=parseInt(v);document.getElementById('sunVal').textContent=v+'%';updateTEGStats();}
 function setTraffic(v){trafficInt=parseInt(v);document.getElementById('trafficVal').textContent=v+'%';updateTEGStats();}
 function updateTEGStats(){
   const dt=Math.round(15+sunInt*.4+trafficInt*.2);
-  const out=Math.round(dt*.42);
   document.getElementById('tegDT').textContent=dt+'°C';
-  document.getElementById('tegOut').textContent=out+'W/m²';
+  document.getElementById('tegOut').textContent=Math.round(dt*.42)+'W/m²';
 }
 function startTEG(){
-  if(tegRunning)return;
-  tegRunning=true;
-  updateTEGStats();
-  const cv=document.getElementById('tegCanvas');
-  if(!cv)return;
-  cv.width=cv.offsetWidth||680;cv.height=200;
+  if(tegRunning)return; tegRunning=true; updateTEGStats();
+  const cv=document.getElementById('tegCanvas'); if(!cv)return;
+  cv.width=cv.offsetWidth||680; cv.height=200;
   const ctx=cv.getContext('2d');
-  // Particle system for convection
-  const particles=[];
-  for(let i=0;i<28;i++){
-    particles.push({x:Math.random(),y:Math.random(),vy:0,phase:Math.random()*Math.PI*2,life:Math.random()});
-  }
-  function drawTEG(){
+  const pts=[];
+  for(let i=0;i<30;i++) pts.push({x:Math.random(),life:Math.random(),phase:Math.random()*Math.PI*2});
+  function draw(){
     tegT+=.012;
     const W=cv.width,H=cv.height;
     ctx.clearRect(0,0,W,H);
-    // Background layers
-    // Sky / ambient
-    ctx.fillStyle='#050c18';ctx.fillRect(0,0,W,H);
-    // Sun rays from top
-    const sunAlpha=sunInt/100*.18;
+    ctx.fillStyle='#050c18'; ctx.fillRect(0,0,W,H);
+    const sa=sunInt/100*.18;
     for(let i=0;i<5;i++){
       const rx=W*(.2+i*.15);
       const rg=ctx.createLinearGradient(rx,0,rx,60);
-      rg.addColorStop(0,`rgba(240,200,50,${sunAlpha})`);
-      rg.addColorStop(1,'rgba(240,200,50,0)');
-      ctx.fillStyle=rg;
-      ctx.beginPath();ctx.moveTo(rx-6,0);ctx.lineTo(rx+6,0);ctx.lineTo(rx+20,60);ctx.lineTo(rx-20,60);ctx.closePath();ctx.fill();
+      rg.addColorStop(0,`rgba(240,200,50,${sa})`); rg.addColorStop(1,'rgba(240,200,50,0)');
+      ctx.fillStyle=rg; ctx.beginPath(); ctx.moveTo(rx-6,0); ctx.lineTo(rx+6,0); ctx.lineTo(rx+20,60); ctx.lineTo(rx-20,60); ctx.closePath(); ctx.fill();
     }
-    // Hot asphalt surface
-    const surfaceHeat=sunInt*.6+trafficInt*.4;
-    const hue=Math.round(20-surfaceHeat*.1);
-    const hotGrad=ctx.createLinearGradient(0,40,0,78);
-    hotGrad.addColorStop(0,`hsla(${hue},80%,${35+surfaceHeat*.15}%,.9)`);
-    hotGrad.addColorStop(1,`hsla(${hue},60%,20%,.8)`);
-    ctx.fillStyle=hotGrad;ctx.fillRect(0,40,W,38);
-    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(0,75,W,4);
-    // Labels
-    ctx.font='11px sans-serif';ctx.fillStyle='rgba(255,200,100,.7)';
-    ctx.fillText('Hot asphalt surface',8,58);
+    const sh=sunInt*.6+trafficInt*.4, hu=Math.round(20-sh*.1);
+    const hg=ctx.createLinearGradient(0,40,0,78);
+    hg.addColorStop(0,`hsla(${hu},80%,${35+sh*.15}%,.9)`); hg.addColorStop(1,`hsla(${hu},60%,20%,.8)`);
+    ctx.fillStyle=hg; ctx.fillRect(0,40,W,38);
+    ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(0,75,W,4);
+    ctx.font='11px sans-serif'; ctx.fillStyle='rgba(255,200,100,.7)'; ctx.fillText('Hot asphalt surface',8,58);
     const dt=Math.round(15+sunInt*.4+trafficInt*.2);
-    ctx.fillStyle='rgba(255,180,80,.8)';ctx.font='bold 13px sans-serif';
-    ctx.fillText('ΔT = '+dt+'°C',W-90,58);
-    // TEG module layer
-    ctx.fillStyle='#1a2840';ctx.fillRect(0,80,W,28);
-    ctx.fillStyle='rgba(32,184,192,.15)';ctx.fillRect(0,80,W,28);
-    ctx.strokeStyle='rgba(32,184,192,.4)';ctx.lineWidth=1;ctx.strokeRect(0,80,W,28);
-    ctx.font='11px sans-serif';ctx.fillStyle='rgba(32,184,192,.8)';
-    ctx.fillText('TEG module layer — thermoelectric generators',8,97);
-    // Cool subgrade
-    const coolGrad=ctx.createLinearGradient(0,110,0,H);
-    coolGrad.addColorStop(0,'#0a1828');
-    coolGrad.addColorStop(1,'#070e1e');
-    ctx.fillStyle=coolGrad;ctx.fillRect(0,110,W,H-110);
-    ctx.font='11px sans-serif';ctx.fillStyle='rgba(100,160,220,.5)';
-    ctx.fillText('Cool subgrade',8,H-12);
-    // Power bus
-    const busW=W*.5,busX=W*.25;
-    ctx.strokeStyle=`rgba(32,184,192,${.3+sunInt/200})`;ctx.lineWidth=2;
-    ctx.strokeRect(busX,86,busW,14);
-    ctx.fillStyle=`rgba(32,184,192,${.1+sunInt/300})`;ctx.fillRect(busX,86,busW,14);
-    ctx.font='10px sans-serif';ctx.fillStyle='rgba(32,184,192,.9)';
-    ctx.textAlign='center';ctx.fillText('DC power bus → grid',W/2,96);ctx.textAlign='left';
-    // Convection particles (heat rising to TEG)
+    ctx.fillStyle='rgba(255,180,80,.9)'; ctx.font='bold 13px sans-serif'; ctx.fillText('ΔT = '+dt+'°C',W-90,58);
+    ctx.fillStyle='#1a2840'; ctx.fillRect(0,80,W,28);
+    ctx.fillStyle='rgba(32,184,192,.15)'; ctx.fillRect(0,80,W,28);
+    ctx.strokeStyle='rgba(32,184,192,.4)'; ctx.lineWidth=1; ctx.strokeRect(0,80,W,28);
+    ctx.font='11px sans-serif'; ctx.fillStyle='rgba(32,184,192,.8)'; ctx.fillText('TEG module layer — thermoelectric generators',8,97);
+    const cg=ctx.createLinearGradient(0,110,0,H); cg.addColorStop(0,'#0a1828'); cg.addColorStop(1,'#070e1e');
+    ctx.fillStyle=cg; ctx.fillRect(0,110,W,H-110);
+    ctx.font='11px sans-serif'; ctx.fillStyle='rgba(100,160,220,.5)'; ctx.fillText('Cool subgrade',8,H-12);
+    const bW=W*.5, bX=W*.25;
+    ctx.strokeStyle=`rgba(32,184,192,${.3+sunInt/200})`; ctx.lineWidth=2; ctx.strokeRect(bX,86,bW,14);
+    ctx.fillStyle=`rgba(32,184,192,${.1+sunInt/300})`; ctx.fillRect(bX,86,bW,14);
+    ctx.font='10px sans-serif'; ctx.fillStyle='rgba(32,184,192,.9)'; ctx.textAlign='center'; ctx.fillText('DC power bus → grid',W/2,96); ctx.textAlign='left';
     const intensity=(sunInt+trafficInt)/200;
-    particles.forEach((p,idx)=>{
-      p.life+=.004*intensity;
-      if(p.life>1){p.life=0;p.x=Math.random();p.y=1;}
-      // Map: y=1 at bottom of surface (78px), y=0 at TEG top (80px) — rising
-      const py=78-(p.life*38);
-      const px=p.x*W+(Math.sin(tegT*1.5+p.phase)*12);
-      const alpha=Math.sin(p.life*Math.PI)*.7*intensity;
-      const heatColor=p.life<.5?`rgba(240,120,20,${alpha})`:`rgba(240,180,40,${alpha})`;
-      ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);
-      ctx.fillStyle=heatColor;ctx.fill();
-      // small upward arrow every 4th particle
-      if(idx%4===0 && alpha>.2){
-        ctx.strokeStyle=heatColor;ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(px,py+6);ctx.lineTo(px,py);
-        ctx.lineTo(px-3,py+4);ctx.moveTo(px,py);ctx.lineTo(px+3,py+4);
-        ctx.stroke();
-      }
+    pts.forEach((p,idx)=>{
+      p.life+=.004*intensity; if(p.life>1){p.life=0;p.x=Math.random();}
+      const py=78-(p.life*38), px=p.x*W+(Math.sin(tegT*1.5+p.phase)*12);
+      const al=Math.sin(p.life*Math.PI)*.7*intensity;
+      const hc=p.life<.5?`rgba(240,120,20,${al})`:`rgba(240,180,40,${al})`;
+      ctx.beginPath(); ctx.arc(px,py,2.5,0,Math.PI*2); ctx.fillStyle=hc; ctx.fill();
+      if(idx%4===0&&al>.2){ctx.strokeStyle=hc;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px,py+6);ctx.lineTo(px,py);ctx.lineTo(px-3,py+4);ctx.moveTo(px,py);ctx.lineTo(px+3,py+4);ctx.stroke();}
     });
-    // Cold side: subtle blue particles (heat sink)
-    particles.forEach((p,idx)=>{
+    pts.forEach((p,idx)=>{
       if(idx%3!==0)return;
-      const py=112+(p.life*30);
-      const px=p.x*W+(Math.sin(tegT+p.phase)*8);
+      const py=112+(p.life*30),px=p.x*W+(Math.sin(tegT+p.phase)*8);
       if(py>H-10)return;
-      const alpha=Math.sin(p.life*Math.PI)*.3;
-      ctx.beginPath();ctx.arc(px,py,1.5,0,Math.PI*2);
-      ctx.fillStyle=`rgba(80,160,240,${alpha})`;ctx.fill();
+      const al=Math.sin(p.life*Math.PI)*.3;
+      ctx.beginPath();ctx.arc(px,py,1.5,0,Math.PI*2);ctx.fillStyle=`rgba(80,160,240,${al})`;ctx.fill();
     });
-    // Output power indicator
-    const outW=Math.min(1,(sunInt+trafficInt)/200);
-    const barW=(W-80)*outW;
+    const oW=Math.min(1,(sunInt+trafficInt)/200), bWo=(W-80)*oW;
     ctx.fillStyle='#0a1820';ctx.fillRect(20,H-36,W-40,12);
-    const outGrad=ctx.createLinearGradient(20,0,20+barW,0);
-    outGrad.addColorStop(0,'#f0a020');outGrad.addColorStop(1,'#20b8c0');
-    ctx.fillStyle=outGrad;ctx.fillRect(20,H-36,barW,12);
+    const og=ctx.createLinearGradient(20,0,20+bWo,0);
+    og.addColorStop(0,'#f0a020');og.addColorStop(1,'#20b8c0');
+    ctx.fillStyle=og;ctx.fillRect(20,H-36,bWo,12);
     ctx.strokeStyle='rgba(32,184,192,.3)';ctx.lineWidth=1;ctx.strokeRect(20,H-36,W-40,12);
-    ctx.font='10px sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';
-    ctx.fillText('Power output: '+Math.round(dt*.42)+' W/m²',24,H-14);
-    requestAnimationFrame(drawTEG);
+    ctx.font='10px sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillText('Power output: '+Math.round(dt*.42)+' W/m²',24,H-14);
+    requestAnimationFrame(draw);
   }
-  drawTEG();
+  draw();
 }
+
+window.addEventListener('resize', ()=>{ resizeBeam(); drawStars(); });
 </script>
 </body>
 </html>

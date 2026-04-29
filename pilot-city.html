@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07101e;--bg2:#0d1828;--border:#1e3050;--accent:#3a7aff;--teal:#20b8c0;--green:#30c080;--amber:#f0a020;--text:#ddeeff}
+body{background:var(--bg);color:var(--text);font-family:sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER */
+.header{padding:12px 18px;background:#07101ef0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;backdrop-filter:blur(8px);z-index:1000}
+.header h1{font-size:15px;font-weight:600;color:#c8e0ff;letter-spacing:.03em}
+.header p{font-size:11px;color:#3a5a80;margin-top:1px}
+.hright{display:flex;gap:8px;align-items:center}
+.hbtn{padding:5px 13px;border-radius:7px;border:1px solid var(--border);background:transparent;color:#7a9acc;font-size:11px;cursor:pointer;transition:all .2s}
+.hbtn:hover,.hbtn.act{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+
+/* LAYOUT */
+.body{display:flex;flex:1;overflow:hidden}
+#map{flex:1}
+
+/* SIDEBAR */
+.sidebar{width:270px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-title{font-size:10px;color:#3a5a80;text-transform:uppercase;letter-spacing:.08em;padding:12px 14px 6px}
+
+.route-list{overflow-y:auto;flex:1}
+.route-item{padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s}
+.route-item:hover{background:#0f1e30}
+.route-item.sel{background:#0f2040;border-left:3px solid var(--accent)}
+.route-item .rname{font-size:12px;font-weight:500;color:#b8d0f0;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.route-item .rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.route-item .rstat{font-size:11px;color:#3a5a80}
+
+.detail-box{border-top:1px solid var(--border);padding:14px}
+.detail-box h3{font-size:13px;color:#c8e0ff;margin-bottom:10px}
+.drow{display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px}
+.drow .dk{color:#3a5a80}.drow .dv{color:#8ab0d0;font-weight:500}
+.impact-bar{height:6px;border-radius:3px;background:#0d1828;margin-top:4px;margin-bottom:8px;overflow:hidden}
+.impact-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--teal))}
+
+.legend{padding:12px 14px;border-top:1px solid var(--border)}
+.leg-title{font-size:10px;color:#3a5a80;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.leg-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px;color:#5a7a9a}
+.leg-line{width:24px;height:3px;border-radius:2px}
+
+/* POPUP */
+.leaflet-popup-content-wrapper{background:#0d1828!important;border:1px solid #1e3050!important;border-radius:10px!important;box-shadow:0 4px 24px rgba(0,0,0,.6)!important;padding:0!important}
+.leaflet-popup-content{margin:0!important;min-width:220px}
+.leaflet-popup-tip{background:#0d1828!important}
+.popup-inner{padding:14px}
+.popup-inner h4{font-size:13px;font-weight:600;color:#c8e0ff;margin-bottom:8px}
+.popup-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.popup-row .pk{color:#3a6080}.popup-row .pv{color:#7ab0d0;font-weight:500}
+.popup-btn{display:block;margin-top:10px;padding:6px 12px;background:#1a2e50;border:1px solid var(--accent);border-radius:6px;color:#aac4ff;font-size:11px;cursor:pointer;text-align:center;transition:all .2s}
+.popup-btn:hover{background:#223870}
+
+/* ANIM INDICATOR */
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:livePulse 1.2s infinite;display:inline-block;margin-right:5px}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(48,192,128,.5)}50%{opacity:.6;box-shadow:0 0 0 5px rgba(48,192,128,0)}}
+
+/* CANVAS overlay for glow */
+#glowCanvas{position:absolute;top:0;left:0;pointer-events:none;z-index:400}
+
+/* Phase toggle */
+.phase-bar{display:flex;gap:5px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.pbtn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#4a6a8a;font-size:11px;cursor:pointer;transition:all .2s}
+.pbtn.act{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🗺 Smart Asphalt System — Pilot City Map</h1>
+    <p><span class="live-dot"></span>Jakarta Metropolitan — DWPT Corridor Candidates</p>
+  </div>
+  <div class="hright">
+    <button class="hbtn act" onclick="filterPhase('all',this)">All Phases</button>
+    <button class="hbtn" onclick="filterPhase('1',this)">Phase 1</button>
+    <button class="hbtn" onclick="filterPhase('2',this)">Phase 2</button>
+    <button class="hbtn" onclick="filterPhase('3',this)">Phase 3</button>
+  </div>
+</div>
+
+<div class="body">
+  <div style="position:relative;flex:1">
+    <div id="map"></div>
+    <canvas id="glowCanvas"></canvas>
+  </div>
+
+  <div class="sidebar">
+    <div class="sb-title">DWPT Corridors</div>
+    <div class="route-list" id="routeList"></div>
+
+    <div class="detail-box" id="detailBox">
+      <h3 id="dName">Select a corridor</h3>
+      <div id="dRows"><p style="font-size:12px;color:#3a5a80">Click a route or corridor card to view details and environmental impact.</p></div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-title">Legend</div>
+      <div class="leg-row"><div class="leg-line" style="background:#3a7aff;box-shadow:0 0 6px #3a7aff"></div>Phase 1 — Smart Lane Pioneer</div>
+      <div class="leg-row"><div class="leg-line" style="background:#20b8c0;box-shadow:0 0 6px #20b8c0"></div>Phase 2 — Smart Corridor</div>
+      <div class="leg-row"><div class="leg-line" style="background:#30c080;box-shadow:0 0 6px #30c080"></div>Phase 3 — Smart Runway</div>
+      <div class="leg-row"><div class="leg-line" style="background:#f0a020;box-shadow:0 0 6px #f0a020"></div>Proposed node</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── MAP INIT ─────────────────────────────────────────────────────────────────
+const map = L.map('map', {
+  center: [-6.2088, 106.8456],
+  zoom: 12,
+  zoomControl: false,
+  attributionControl: false
+});
+L.control.zoom({position:'bottomright'}).addTo(map);
+
+// Dark tile layer
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'© OpenStreetMap © CartoDB',
+  maxZoom:19
+}).addTo(map);
+
+// ── ROUTE DATA ───────────────────────────────────────────────────────────────
+const routes = [
+  {
+    id:'r1', phase:'1', name:'Jl. Sudirman–Thamrin', color:'#3a7aff', glow:'rgba(58,122,255,',
+    coords:[[-6.1944,106.8229],[-6.2001,106.8229],[-6.2088,106.8221],[-6.2141,106.8235],[-6.2200,106.8245],[-6.2271,106.8260]],
+    km:3.8, vol:14200, co2:520, phase_label:'Phase 1',
+    desc:'Premium corridor — highest motor density in Jakarta. Proven ridership for rapid deployment.',
+    energy:'Estimated 285 kWh/day harvested',
+    nodes:['Bundaran HI','Semanggi Interchange','Sudirman MRT']
+  },
+  {
+    id:'r2', phase:'1', name:'Jl. Gatot Subroto (E–W)', color:'#3a7aff', glow:'rgba(58,122,255,',
+    coords:[[-6.2271,106.7990],[-6.2271,106.8100],[-6.2271,106.8200],[-6.2271,106.8350],[-6.2271,106.8456]],
+    km:5.1, vol:18600, co2:680, phase_label:'Phase 1',
+    desc:'East-West arterial connecting major business districts. High commercial vehicle density ideal for DWPT.',
+    energy:'Estimated 380 kWh/day harvested',
+    nodes:['Semanggi','Slipi Junction','Gatot Subroto Office District']
+  },
+  {
+    id:'r3', phase:'1', name:'Jl. Rasuna Said', color:'#3a7aff', glow:'rgba(58,122,255,',
+    coords:[[-6.2180,106.8310],[-6.2200,106.8350],[-6.2220,106.8390],[-6.2240,106.8430],[-6.2260,106.8456]],
+    km:2.9, vol:11000, co2:390, phase_label:'Phase 1',
+    desc:'Kuningan CBD corridor — dense office traffic, ideal for motorcycle charging lane deployment.',
+    energy:'Estimated 210 kWh/day harvested',
+    nodes:['Kuningan','Setiabudi','Rasuna Said MRT']
+  },
+  {
+    id:'r4', phase:'2', name:'Jl. MT Haryono – Pancoran', color:'#20b8c0', glow:'rgba(32,184,192,',
+    coords:[[-6.2370,106.8500],[-6.2430,106.8540],[-6.2490,106.8570],[-6.2550,106.8590],[-6.2614,106.8601]],
+    km:4.2, vol:16000, co2:560, phase_label:'Phase 2',
+    desc:'Phase 2 expansion targeting E-Bus corridors. Self-healing polymer asphalt + TEG integration.',
+    energy:'Estimated 420 kWh/day (incl. TEG)',
+    nodes:['Pancoran Flyover','MT Haryono','Tebet Interchange']
+  },
+  {
+    id:'r5', phase:'2', name:'Jl. Bekasi Raya (Logistics)', color:'#20b8c0', glow:'rgba(32,184,192,',
+    coords:[[-6.2200,106.8800],[-6.2180,106.8900],[-6.2160,106.9000],[-6.2150,106.9100],[-6.2140,106.9200]],
+    km:6.3, vol:22000, co2:840, phase_label:'Phase 2',
+    desc:'Last-mile logistics corridor — heaviest truck load in East Jakarta. Highest piezoelectric yield.',
+    energy:'Estimated 620 kWh/day (DWPT + Piezo)',
+    nodes:['Cawang','Cipinang','Bekasi Barat']
+  },
+  {
+    id:'r6', phase:'3', name:'Jakarta–Tangerang Smart Runway', color:'#30c080', glow:'rgba(48,192,128,',
+    coords:[[-6.1700,106.7400],[-6.1750,106.7200],[-6.1780,106.7000],[-6.1800,106.6800],[-6.1820,106.6600]],
+    km:12.4, vol:8000, co2:1200, phase_label:'Phase 3',
+    desc:'Phase 3 Smart Runway for Ground-Effect pod transit. High-precision DWPT at 150 kW. Connects to Soetta Airport.',
+    energy:'Estimated 1,800 kWh/day — feeds local grid',
+    nodes:['Kalideres','Tangerang Gate','Soetta Cargo Hub']
+  }
+];
+
+// ── NODE MARKERS ─────────────────────────────────────────────────────────────
+const nodeLocations = [
+  {name:'Bundaran HI\nDWPT Node A', latlng:[-6.1944,106.8229], color:'#3a7aff'},
+  {name:'Semanggi\nDWPT Node B', latlng:[-6.2271,106.8229], color:'#3a7aff'},
+  {name:'Kuningan Hub\nDWPT Node C', latlng:[-6.2180,106.8310], color:'#20b8c0'},
+  {name:'Pancoran\nDWPT Node D', latlng:[-6.2614,106.8601], color:'#20b8c0'},
+  {name:'Soetta Cargo\nSmart Runway', latlng:[-6.1820,106.6600], color:'#30c080'},
+];
+
+// ── DRAW ROUTES ───────────────────────────────────────────────────────────────
+const polylines = {};
+routes.forEach(r => {
+  // outer glow
+  L.polyline(r.coords, {color: r.color, weight:14, opacity:.08}).addTo(map);
+  L.polyline(r.coords, {color: r.color, weight:8, opacity:.18}).addTo(map);
+  // main line
+  const pl = L.polyline(r.coords, {
+    color: r.color, weight: 3.5, opacity: .9,
+    dashArray: null
+  }).addTo(map);
+  // animated dashes overlay
+  const dash = L.polyline(r.coords, {
+    color: '#ffffff', weight: 1.5, opacity: .45,
+    dashArray: '8 18', dashOffset: '0'
+  }).addTo(map);
+  polylines[r.id] = {pl, dash};
+
+  pl.on('click', () => selectRoute(r.id));
+  pl.on('mouseover', () => { pl.setStyle({weight:5,opacity:1}); });
+  pl.on('mouseout', () => { if(selectedRoute!==r.id) pl.setStyle({weight:3.5,opacity:.9}); });
+});
+
+// ── NODE MARKERS ─────────────────────────────────────────────────────────────
+nodeLocations.forEach(n => {
+  const icon = L.divIcon({
+    className:'',
+    html:`<div style="width:14px;height:14px;border-radius:50%;background:${n.color};border:2px solid #fff;box-shadow:0 0 12px ${n.color},0 0 4px ${n.color}"></div>`,
+    iconSize:[14,14], iconAnchor:[7,7]
+  });
+  L.marker(n.latlng, {icon}).addTo(map)
+   .bindTooltip(`<span style="font-size:11px;color:#aac4ff;background:#0d1828;border:1px solid #1e3050;border-radius:5px;padding:3px 8px;white-space:pre-line">${n.name}</span>`, {direction:'top',offset:[0,-8],className:''});
+});
+
+// ── SIDEBAR ROUTE LIST ────────────────────────────────────────────────────────
+const listEl = document.getElementById('routeList');
+routes.forEach(r => {
+  const d = document.createElement('div');
+  d.className = 'route-item';
+  d.id = 'li-' + r.id;
+  d.innerHTML = `<div class="rname"><span class="rdot" style="background:${r.color}"></span>${r.name}</div><div class="rstat">${r.phase_label} · ${r.km} km · ${r.vol.toLocaleString()} vehicles/day</div>`;
+  d.onclick = () => selectRoute(r.id);
+  listEl.appendChild(d);
+});
+
+// ── SELECT ROUTE ──────────────────────────────────────────────────────────────
+let selectedRoute = null;
+function selectRoute(id) {
+  selectedRoute = id;
+  const r = routes.find(x => x.id === id);
+  // sidebar highlight
+  document.querySelectorAll('.route-item').forEach(el => el.classList.remove('sel'));
+  document.getElementById('li-'+id).classList.add('sel');
+  // line style
+  Object.keys(polylines).forEach(k => polylines[k].pl.setStyle({weight:3.5,opacity:.9}));
+  polylines[id].pl.setStyle({weight:6, opacity:1});
+  // fit map
+  const bounds = L.latLngBounds(r.coords);
+  map.fitBounds(bounds, {padding:[60,60]});
+  // detail
+  document.getElementById('dName').textContent = r.name;
+  const impactPct = Math.min(100, (r.co2/1200)*100);
+  document.getElementById('dRows').innerHTML = `
+    <div class="drow"><span class="dk">Phase</span><span class="dv">${r.phase_label}</span></div>
+    <div class="drow"><span class="dk">Length</span><span class="dv">${r.km} km</span></div>
+    <div class="drow"><span class="dk">Daily volume</span><span class="dv">${r.vol.toLocaleString()} vehicles</span></div>
+    <div class="drow"><span class="dk">CO₂ reduction</span><span class="dv">${r.co2} kg/day</span></div>
+    <div class="impact-bar"><div class="impact-fill" style="width:${impactPct}%"></div></div>
+    <div class="drow"><span class="dk">Energy</span><span class="dv">${r.energy}</span></div>
+    <div style="font-size:11px;color:#3a5a80;margin:6px 0 4px">Key nodes:</div>
+    ${r.nodes.map(n=>`<div style="font-size:11px;color:#5a8aaa;margin-bottom:3px">• ${n}</div>`).join('')}
+    <div style="font-size:11px;color:#4a6a8a;margin-top:8px;line-height:1.6">${r.desc}</div>
+  `;
+  // show popup on map
+  const mid = r.coords[Math.floor(r.coords.length/2)];
+  L.popup({className:''})
+   .setLatLng(mid)
+   .setContent(`<div class="popup-inner">
+     <h4>${r.name}</h4>
+     <div class="popup-row"><span class="pk">Length</span><span class="pv">${r.km} km</span></div>
+     <div class="popup-row"><span class="pk">Daily traffic</span><span class="pv">${r.vol.toLocaleString()} vehicles</span></div>
+     <div class="popup-row"><span class="pk">CO₂ reduction</span><span class="pv">${r.co2} kg/day</span></div>
+     <div class="popup-row"><span class="pk">Phase</span><span class="pv">${r.phase_label}</span></div>
+     <div class="popup-btn" onclick="document.querySelector('.leaflet-popup-close-button').click()">✓ Noted</div>
+   </div>`)
+   .openOn(map);
+}
+
+// ── PHASE FILTER ──────────────────────────────────────────────────────────────
+function filterPhase(ph, btn) {
+  document.querySelectorAll('.hbtn').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  routes.forEach(r => {
+    const show = ph==='all' || r.phase===ph;
+    const {pl,dash} = polylines[r.id];
+    pl.setStyle({opacity: show?.9:0.08, weight: show?3.5:1});
+    dash.setStyle({opacity: show?.45:.05});
+    const li = document.getElementById('li-'+r.id);
+    li.style.opacity = show?'1':'.3';
+    li.style.pointerEvents = show?'auto':'none';
+  });
+}
+
+// ── ANIMATED DASH OFFSET (moving dashes for "flow" effect) ───────────────────
+let dashOffset = 0;
+setInterval(() => {
+  dashOffset -= 1;
+  routes.forEach(r => {
+    polylines[r.id].dash.setStyle({dashOffset: dashOffset+''});
+  });
+}, 50);
+
+// ── GLOW CANVAS (pulsing glow rings on nodes) ─────────────────────────────────
+const gc = document.getElementById('glowCanvas');
+const gCtx = gc.getContext('2d');
+let glowT = 0;
+function resizeGlow() {
+  const mapEl = document.getElementById('map');
+  gc.width = mapEl.offsetWidth; gc.height = mapEl.offsetHeight;
+  gc.style.width = mapEl.offsetWidth+'px'; gc.style.height = mapEl.offsetHeight+'px';
+}
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  const r = parseInt(hex.substring(0,2), 16);
+  const g = parseInt(hex.substring(2,4), 16);
+  const b = parseInt(hex.substring(4,6), 16);
+  return `${r},${g},${b}`;
+}
+function drawGlow() {
+  glowT += .02;
+  gCtx.clearRect(0,0,gc.width,gc.height);
+  nodeLocations.forEach(n => {
+    const pt = map.latLngToContainerPoint(n.latlng);
+    const r1 = 18 + Math.sin(glowT)*8;
+    const alpha = 0.18 + Math.sin(glowT)*.08;
+    const grd = gCtx.createRadialGradient(pt.x,pt.y,2,pt.x,pt.y,r1);
+    
+    const rgb = hexToRgb(n.color);
+    grd.addColorStop(0, `rgba(${rgb},${alpha.toFixed(2)})`);
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    gCtx.fillStyle = grd;
+    gCtx.beginPath(); gCtx.arc(pt.x,pt.y,r1,0,Math.PI*2); gCtx.fill();
+  });
+  requestAnimationFrame(drawGlow);
+}
+
+resizeGlow(); drawGlow();
+window.addEventListener('resize', resizeGlow);
+map.on('move zoom', resizeGlow);
+
+// auto-select first route
+setTimeout(() => selectRoute('r1'), 800);
+</script>
+</body>
+</html>

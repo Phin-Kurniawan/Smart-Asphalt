@@ -1,0 +1,205 @@
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0e1a;--bg2:#0e1828;--bg3:#131f30;--border:#1e2a42;--text:#e8eaf0;--muted:#5a6a8a;--accent:#3a7aff;--accent2:#20b8c0;--green:#30c080;--amber:#f0a020}
+body{font-family:sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+h2{font-size:12px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#4a5a7a;margin-bottom:10px}
+
+/* HERO */
+.hero{text-align:center;padding:32px 24px 16px;background:linear-gradient(180deg,#0d1526 0%,var(--bg) 100%);position:relative}
+.hero h1{font-size:24px;font-weight:600;letter-spacing:.04em;color:#e0eaff;margin-bottom:4px}
+.hero .sub{font-size:12px;color:#4a5a7a;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.hero p{font-size:13px;color:#5a6a8a;max-width:500px;margin:4px auto 0}
+
+/* TOP CONTROLS */
+.top-ctrls{position:absolute;top:14px;right:14px;display:flex;gap:6px;align-items:center}
+.lang-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.lang-btn{padding:5px 10px;font-size:11px;cursor:pointer;background:transparent;color:#5a6a8a;border:none;transition:all .2s}
+.lang-btn.active{background:#1a2744;color:#aac4ff}
+.icon-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:#7a9acc;font-size:12px;cursor:pointer;transition:all .2s}
+.icon-btn:hover{background:var(--bg2);color:#aac4ff}
+
+/* TABS */
+.tabs{display:flex;justify-content:center;gap:6px;padding:14px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:10;background:var(--bg)}
+.tab{padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:#5a6a8a;transition:all .2s}
+.tab:hover{color:#aac4ff;border-color:#2a3a64}
+.tab.active{background:#1a2744;border-color:#3a5aaa;color:#aac4ff}
+
+.panel{display:none;padding:22px 24px 32px;max-width:920px;margin:0 auto}
+.panel.active{display:block}
+
+/* LAYER VIZ */
+.road{position:relative;width:100%;height:300px;overflow:hidden;border-radius:12px;cursor:pointer;user-select:none;border:1px solid var(--border)}
+.layer{position:absolute;left:0;right:0;display:flex;align-items:center;padding:0 18px;transition:background .3s;border-bottom:1px solid rgba(255,255,255,.04)}
+.layer .lnum{font-size:11px;color:#3a4a6a;min-width:20px}
+.layer .lname{font-size:13px;font-weight:500;color:#c8d8f8;min-width:150px}
+.layer .ldesc{font-size:12px;color:#4a5a7a;flex:1;padding:0 10px}
+.layer .lbadge{font-size:11px;padding:3px 10px;border-radius:10px;background:#1a2744;color:#7aacff;border:1px solid #2a3a64;white-space:nowrap}
+.layer.hi .lname{color:#e0f0ff}
+.l1{top:0;height:25%;background:#141e30}.l2{top:25%;height:25%;background:#0f1c2e}
+.l3{top:50%;height:25%;background:#0b182a}.l4{top:75%;height:25%;background:#081426}
+.l1.hi{background:#1e3060}.l2.hi{background:#1a2c50}.l3.hi{background:#14243e}.l4.hi{background:#0e1a2e}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:10px;flex-shrink:0;animation:pulse 2s infinite}
+.pulse.amber{background:var(--amber)}.pulse.green{background:var(--green)}.pulse.teal{background:var(--accent2)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+#layer-detail{margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;min-height:80px}
+
+/* ── DWPT SIM v3 ── */
+.sim-scene{position:relative;width:100%;height:240px;background:#060c16;border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
+/* sky gradient */
+.sim-sky{position:absolute;top:0;left:0;right:0;height:110px;background:linear-gradient(180deg,#050a14 0%,#0a1428 100%)}
+/* road body */
+.sim-road-body{position:absolute;bottom:0;left:0;right:0;height:90px;background:#0d1826}
+.sim-road-top{position:absolute;bottom:88px;left:0;right:0;height:3px;background:#1e2e44}
+/* lane markings */
+.sim-lane{position:absolute;bottom:42px;height:3px;background:linear-gradient(90deg,transparent 0%,#2a4280 20%,#2a4280 80%,transparent 100%);animation:laneScroll 0.8s linear infinite}
+@keyframes laneScroll{from{background-position:0 0}to{background-position:-60px 0}}
+/* DWPT segments embedded in road */
+.seg-track{position:absolute;bottom:0;left:0;right:0;height:88px;pointer-events:none}
+.seg{position:absolute;bottom:0;width:11%;height:100%;border-left:1px solid rgba(58,122,255,.15);border-right:1px solid rgba(58,122,255,.15);transition:background .15s,box-shadow .15s}
+.seg.lit{background:rgba(58,122,255,.12);box-shadow:0 0 18px rgba(58,122,255,.25) inset}
+.seg.lit-strong{background:rgba(58,122,255,.22);box-shadow:0 0 28px rgba(58,122,255,.45) inset}
+/* coil glow inside lit seg */
+.seg.lit-strong::after{content:'';position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:60%;height:6px;border-radius:3px;background:rgba(100,160,255,.4);animation:coilPulse .4s ease-in-out infinite alternate}
+@keyframes coilPulse{from{opacity:.4}to{opacity:1}}
+
+/* vehicles */
+.vehicle{position:absolute;transition:left .06s linear;pointer-events:none}
+
+/* MOTOR SVG */
+.motor-svg{width:48px;height:32px}
+/* BUS SVG */
+.bus-svg{width:80px;height:44px}
+/* POD SVG */
+.pod-svg{width:72px;height:28px}
+
+/* charge beam */
+.charge-beam{position:absolute;width:3px;background:linear-gradient(180deg,rgba(58,122,255,.9),rgba(58,122,255,0));border-radius:2px;transform:translateX(-50%);pointer-events:none;transition:opacity .15s}
+
+/* charging label */
+.charge-label{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s;white-space:nowrap;background:rgba(7,14,28,.7);padding:3px 10px;border-radius:8px;border:1px solid rgba(58,122,255,.3)}
+
+/* stat row */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.stat .val{font-size:20px;font-weight:600;color:#aac4ff;margin-bottom:2px}
+.stat .lbl{font-size:11px;color:var(--muted)}
+
+/* vehicle selector */
+.veh-sel{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.vbtn{padding:7px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:#6a8aaa;font-size:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.vbtn.active{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+.vbtn svg{width:28px;height:18px}
+
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{padding:7px 16px;border-radius:8px;border:1px solid #2a3a64;background:#1a2744;color:#aac4ff;font-size:12px;cursor:pointer;transition:all .2s}
+.btn:hover{background:#223466}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
+.rl{font-size:12px;color:var(--muted);min-width:60px}
+.rv{font-size:12px;color:#aac4ff;min-width:44px}
+
+/* DAS */
+.das-wrap{background:#050c18;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.das-road{position:relative;height:90px;background:#080e1a;border-bottom:1px solid var(--border)}
+.fiber{position:absolute;bottom:20px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#20b8c080,#20b8c0,#20b8c080,transparent)}
+.das-road-line{position:absolute;bottom:0;left:0;right:0;height:20px;background:#0d1828;border-top:2px solid #1e2840}
+.das-chart{padding:14px 16px}
+.das-chart-title{font-size:11px;color:var(--muted);margin-bottom:8px}
+.wave-canvas{width:100%;height:60px;border-radius:6px;background:#050c18;display:block}
+/* DAS alert overlay */
+.das-alert{display:none;position:absolute;top:8px;right:8px;background:#3a0a0a;border:1px solid #aa3030;border-radius:8px;padding:5px 12px;font-size:11px;color:#ff7070;animation:alertPulse .5s ease-in-out infinite alternate}
+@keyframes alertPulse{from{opacity:.7}to{opacity:1}}
+.das-events{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.das-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .2s}
+.das-card:hover{border-color:#2a5aaa}
+.das-card .dc-icon{font-size:18px;margin-bottom:4px}
+.das-card .dc-name{font-size:12px;color:#c8d8f8;font-weight:500;margin-bottom:2px}
+.das-card .dc-val{font-size:11px;color:var(--muted)}
+.das-card.active{border-color:var(--accent2);background:#0f1e2e}
+.das-card.alert-card{border-color:#aa3030!important;background:#1a0808!important}
+/* Accident playback btn */
+.accident-btn{margin-top:10px;padding:7px 16px;border-radius:8px;border:1px solid #aa2020;background:#1a0808;color:#ff7070;font-size:12px;cursor:pointer;transition:all .2s}
+.accident-btn:hover{background:#2a1010}
+
+/* TEG */
+.teg-wrap{background:#050c18;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.teg-canvas{width:100%;height:200px;display:block}
+.teg-ctrl{padding:12px 16px;display:flex;gap:12px;align-items:center;border-top:1px solid var(--border);flex-wrap:wrap}
+.teg-stat{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:#7a9acc}
+.teg-stat span{font-size:16px;font-weight:600;color:#f0a020;display:block}
+
+/* ROADMAP */
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#3a5aaa,#1a2a44)}
+.titem{position:relative;margin-bottom:18px}
+.titem::before{content:'';position:absolute;left:-24px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--accent)}
+.tcard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.tcard h3{font-size:14px;font-weight:500;color:#c8d8f8;margin-bottom:3px}
+.tcard .tyear{font-size:11px;color:var(--accent);margin-bottom:5px}
+.tcard p{font-size:12px;color:#5a6a8a;line-height:1.65}
+.tcard .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#1a2744;border:1px solid #2a3a64;color:#7a9acc}
+
+/* DATA */
+.meter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.meter{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.meter svg{display:block;margin:0 auto 4px}
+.meter .mlabel{font-size:11px;color:var(--muted)}
+.meter .mval{font-size:16px;font-weight:600;color:#aac4ff;margin-bottom:2px}
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.chart-title{font-size:12px;color:var(--muted);margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bar-label{font-size:11px;color:var(--muted);min-width:120px;text-align:right}
+.bar-track{flex:1;height:16px;background:#0d1828;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px}
+.bar-val{font-size:11px;font-weight:500;color:rgba(255,255,255,.75)}
+
+/* compliance badges */
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.badge{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;color:#6a9acc}
+.badge .bicon{font-size:14px}
+.badge .btxt{color:#4a7aaa;font-size:10px;display:block}
+
+body.fs-mode #fsBtn{position:fixed;top:12px;z-index:999}
+.hero-icon {
+  width: 64px;
+  height: 64px;
+  margin-right: 1rem;
+  vertical-align: middle;
+}
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.btn-cta {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.1rem 0.7rem;
+  background: #00ff8881;
+  color: #0f172a;
+  border-radius: 2rem;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+.btn-cta:hover {
+  background: #00cc66;
+}
+ .flex-row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    }
+    .btn-3d {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #2a3a64;
+  background: #1a2744;
+  color: #aac4ff;
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-3d:hover {
+  background: #223466;
+  border-color: #3a5aaa;
+}
