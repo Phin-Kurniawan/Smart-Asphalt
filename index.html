@@ -3,6 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <style>
+    .flex-row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    }
+    .btn-3d {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #2a3a64;
+  background: #1a2744;
+  color: #aac4ff;
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-3d:hover {
+  background: #223466;
+  border-color: #3a5aaa;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0a0e1a;--bg2:#0e1828;--bg3:#131f30;--border:#1e2a42;--text:#e8eaf0;--muted:#5a6a8a;--accent:#3a7aff;--accent2:#20b8c0;--green:#30c080;--amber:#f0a020}
 body{font-family:sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
@@ -139,6 +157,7 @@ body.fs-mode .hero{min-height:40px}
 
 <div class="tabs">
   <button class="tab active" onclick="showPanel('layers',this)">Architecture</button>
+  
   <button class="tab" onclick="showPanel('sim',this)">DWPT Simulation</button>
   <button class="tab" onclick="showPanel('das',this)">DAS Sensor</button>
   <button class="tab" onclick="showPanel('teg',this)">TEG Heat Flow</button>
@@ -148,7 +167,10 @@ body.fs-mode .hero{min-height:40px}
 
 <!-- LAYER ARCHITECTURE -->
 <div id="p-layers" class="panel active">
-  <h2>4-Layer Architecture — click a layer to inspect</h2>
+   <div class="flex-row-between">
+        <h2>4-Layer Architecture — click a layer to inspect</h2>
+         <button class="tab active btn-3d" onclick="window.open('architecture.html','_blank')">3D Model</button>
+    </div>
   <div class="road" id="roadViz">
     <div class="layer l1" onclick="selectLayer(0)" id="lay0">
       <span class="lnum">①</span><div class="pulse"></div>

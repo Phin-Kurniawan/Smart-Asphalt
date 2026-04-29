@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07101e;--bg2:#0d1a2e;--border:#1a2a40;--accent:#3a7aff;--teal:#20b8c0;--green:#30c080;--amber:#f0a020;--text:#dde8ff;--muted:#4a6080}
+body{background:var(--bg);color:var(--text);font-family:sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+#header{padding:12px 20px;gap:12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;background:#07101eee;backdrop-filter:blur(8px)}
+#header h1{font-size:15px;font-weight:600;letter-spacing:.04em;color:#c8deff}
+#header p{font-size:11px;color:var(--muted);margin-top:1px}
+.hbtns{display:flex;gap:6px}
+.hbtn{padding:5px 13px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:transparent;color:#7a9acc;transition:all .2s}
+.hbtn:hover{background:var(--bg2);color:#aac4ff}
+.hbtn.act{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+#main{display:flex;flex:1;overflow:hidden}
+#canvas-wrap{flex:1;position:relative}
+canvas{display:block;width:100%!important;height:100%!important}
+/* Sidebar */
+#sidebar{width:240px;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+#sidebar-title{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:12px 14px 6px}
+.layer-btn{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:10px}
+.layer-btn:hover{background:#0f1e30}
+.layer-btn.sel{background:#0f2040;border-left:3px solid var(--accent)}
+.layer-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.layer-btn .lname{font-size:12px;font-weight:500;color:#b8d0f0}
+.layer-btn .ltag{font-size:10px;color:var(--muted);margin-top:1px}
+#detail{flex:1;padding:14px;overflow-y:auto;border-top:1px solid var(--border)}
+#detail h3{font-size:13px;font-weight:500;color:#c8deff;margin-bottom:8px}
+.ditem{display:flex;gap:8px;margin-bottom:7px}
+.ditem .di{color:var(--accent);font-size:11px;margin-top:2px;flex-shrink:0}
+.ditem p{font-size:11px;color:#6a8aaa;line-height:1.6}
+#metrics{padding:12px 14px;border-top:1px solid var(--border)}
+#metrics h4{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.metric{display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px}
+.metric .mk{color:var(--muted)}.metric .mv{color:#aac4ff;font-weight:500}
+/* Controls hint */
+#hint{position:absolute;bottom:10px;left:10px;font-size:10px;color:#2a4060;pointer-events:none}
+/* Floating labels */
+#labels{position:absolute;top:0;left:0;pointer-events:none;width:100%;height:100%}
+.flabel{position:absolute;background:rgba(7,16,30,.85);border:1px solid #1e3050;border-radius:6px;padding:4px 9px;font-size:11px;color:#8aaedd;white-space:nowrap;transform:translate(-50%,-50%);pointer-events:none;transition:opacity .3s}
+/* Particle overlay canvas */
+#partCanvas{position:absolute;top:0;left:0;pointer-events:none}
+/* Mode toggle */
+#modeBar{position:absolute;top:10px;left:10px;display:flex;gap:5px}
+.mbtn{padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:rgba(7,16,30,.8);color:#7a9acc;backdrop-filter:blur(6px);transition:all .2s}
+.mbtn:hover{background:#0d1a2e;color:#aac4ff}
+.mbtn.act{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+/* Fullscreen */
+#fsBtn{position:absolute;top:10px;right:10px;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:rgba(7,16,30,.8);color:#7a9acc;backdrop-filter:blur(6px)}
+#fsBtn:hover{color:#aac4ff}
+#backBtn {
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;          /* transparan seperti yang kamu mau */
+  color: #7a9acc;
+  backdrop-filter: blur(6px);
+  transition: all .2s;
+  margin-right: auto;               /* dorong ke kiri, judul tetap di tengah */
+}
+
+#backBtn:hover {
+  background: rgba(7,16,30, 0.25);
+  color: #aac4ff;
+  border-color: #3a5aaa;
+}
+</style>
+</head>
+<body>
+<div id="header">
+    <button id="backBtn" onclick="goBack()">← Back</button>
+  <div>
+    <h1>Smart Asphalt System — 3D Cross-Section</h1>
+    <p>Drag to rotate · Scroll to zoom · Click a layer to inspect</p>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn act" onclick="setAnim('dwpt')">⚡ DWPT</button>
+    <button class="hbtn" onclick="setAnim('das')">📡 DAS</button>
+    <button class="hbtn" onclick="setAnim('teg')">🌡 TEG</button>
+    <button class="hbtn" onclick="setAnim('idle')">◼ Idle</button>
+  </div>
+</div>
+<div id="main">
+    <div id="canvas-wrap">
+        <canvas id="c"></canvas>
+        <canvas id="partCanvas"></canvas>
+        <div id="labels">
+
+        </div>
+    <div id="modeBar">
+      <button class="mbtn act" onclick="setView('cross')">Cross-section</button>
+      <button class="mbtn" onclick="setView('top')">Top view</button>
+      <button class="mbtn" onclick="setView('iso')">Isometric</button>
+    </div>
+    <button id="fsBtn" onclick="toggleFS()">⛶ Fullscreen</button>
+    <div id="hint">Drag · Scroll · Click layer</div>
+  </div>
+  <div id="sidebar">
+    <div id="sidebar-title">Road Layers</div>
+    <div class="layer-btn sel" onclick="selectLayer(0)" id="lb0">
+      <div class="dot" style="background:#5a9aff"></div>
+      <div><div class="lname">Surface Layer</div><div class="ltag">Wearing Course</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(1)" id="lb1">
+      <div class="dot" style="background:#f0a020"></div>
+      <div><div class="lname">Power Transfer</div><div class="ltag">DWPT · Litz Wire DD</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(2)" id="lb2">
+      <div class="dot" style="background:#30c080"></div>
+      <div><div class="lname">Sensor Layer</div><div class="ltag">Fiber Optic DAS</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(3)" id="lb3">
+      <div class="dot" style="background:#20b8c0"></div>
+      <div><div class="lname">Energy Harvest</div><div class="ltag">TEG · Piezoelectric</div></div>
+    </div>
+    <div id="detail">
+      <h3 id="dTitle">Surface Layer</h3>
+      <div id="dItems"></div>
+    </div>
+    <div id="metrics">
+      <h4>Live Metrics</h4>
+      <div class="metric"><span class="mk">Surface temp</span><span class="mv" id="mTemp">58°C</span></div>
+      <div class="metric"><span class="mk">DWPT efficiency</span><span class="mv" id="mEff">87%</span></div>
+      <div class="metric"><span class="mk">DAS latency</span><span class="mv" id="mLat">0.8s</span></div>
+      <div class="metric"><span class="mk">TEG output</span><span class="mv" id="mTEG">22 W/m²</span></div>
+      <div class="metric"><span class="mk">Vehicles detected</span><span class="mv" id="mVeh">3</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── Scene setup ──────────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const wrap = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x07101e);
+scene.fog = new THREE.Fog(0x07101e, 18, 35);
+
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(6, 5, 8);
+camera.lookAt(0, 0, 0);
+
+function resize(){
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  renderer.setSize(W, H, false);
+  camera.aspect = W/H;
+  camera.updateProjectionMatrix();
+  pCanvas.width = W; pCanvas.height = H;
+}
+function goBack() {
+  window.location.href = 'index.html';  // atau '../index.html' jika beda folder
+}
+// ── Lights ───────────────────────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0x1a2a44, 1.2);
+scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xffeedd, 1.4);
+sun.position.set(5, 10, 6);
+sun.castShadow = true;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0x3a5aaa, 0.5);
+fill.position.set(-4, 2, -3);
+scene.add(fill);
+
+// ── Layer geometry ───────────────────────────────────────────────────────────
+const W = 7, D = 4;
+const layerDefs = [
+  {name:'Surface Layer',     h:0.25, y: 0.125, color:0x2a3a5a, emissive:0x0a1020, label:'Asphalt · Graphene coating'},
+  {name:'Power Layer',       h:0.35, y:-0.175, color:0x1e2e48, emissive:0x0a0818, label:'Litz Wire DD · 85 kHz DWPT'},
+  {name:'Sensor Layer',      h:0.25, y:-0.475, color:0x162438, emissive:0x060e18, label:'Fiber Optic · DAS'},
+  {name:'Energy Layer',      h:0.30, y:-0.725, color:0x0f1c2e, emissive:0x040a14, label:'TEG · Piezoelectric'},
+];
+const layers = [], layerMats = [];
+
+layerDefs.forEach((def,i)=>{
+  const geo = new THREE.BoxGeometry(W, def.h, D);
+  const mat = new THREE.MeshStandardMaterial({
+    color: def.color, emissive: def.emissive,
+    roughness:.6, metalness:.3,
+    transparent:true, opacity:1
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(0, def.y, 0);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = {layerIdx: i, baseY: def.y};
+  scene.add(mesh);
+  layers.push(mesh);
+  layerMats.push(mat);
+
+  // Edge highlight
+  const edges = new THREE.EdgesGeometry(geo);
+  const lineMat = new THREE.LineBasicMaterial({color:0x2a4060, transparent:true, opacity:.5});
+  const line = new THREE.LineSegments(edges, lineMat);
+  mesh.add(line);
+});
+
+// ── Road markings on surface ─────────────────────────────────────────────────
+const markGeo = new THREE.PlaneGeometry(0.5, 0.9);
+const markMat = new THREE.MeshStandardMaterial({color:0x2a4a80, emissive:0x0a1828, roughness:.8});
+for(let i=-2;i<=2;i++){
+  const m = new THREE.Mesh(markGeo, markMat);
+  m.rotation.x = -Math.PI/2;
+  m.position.set(i*1.4, 0.251, 0);
+  scene.add(m);
+}
+
+// ── Coils in power layer ─────────────────────────────────────────────────────
+const coilColor = [0xf0a020, 0xffc040];
+for(let ci=0;ci<3;ci++){
+  const cx = -2.2 + ci*2.2;
+  for(let ri=0;ri<2;ri++){
+    const cg = new THREE.TorusGeometry(.55, .06, 8, 24);
+    const cm = new THREE.MeshStandardMaterial({color:coilColor[ri],emissive:0x201000,roughness:.4,metalness:.7});
+    const ct = new THREE.Mesh(cg, cm);
+    ct.rotation.x = Math.PI/2;
+    ct.position.set(cx, -0.175, ri===0?-.8:.8);
+    scene.add(ct);
+  }
+}
+
+// ── Fiber optic line in sensor layer ────────────────────────────────────────
+const fiberCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-3.3,-0.47,-1.5),
+  new THREE.Vector3(-1,-0.47,.8),
+  new THREE.Vector3(1,-0.47,-1),
+  new THREE.Vector3(3.3,-0.47,1.5)
+]);
+const fGeo = new THREE.TubeGeometry(fiberCurve, 40, .04, 6, false);
+const fMat = new THREE.MeshStandardMaterial({color:0x20b8c0,emissive:0x0a6070,roughness:.2,metalness:.5});
+scene.add(new THREE.Mesh(fGeo, fMat));
+
+// ── TEG modules in energy layer ──────────────────────────────────────────────
+for(let ti=-2;ti<=2;ti++){
+  for(let tj=-1;tj<=1;tj+=2){
+    const tg = new THREE.BoxGeometry(.6,.15,.5);
+    const tm = new THREE.MeshStandardMaterial({color:0x20b8c0,emissive:0x082028,roughness:.3,metalness:.8});
+    const tmesh = new THREE.Mesh(tg, tm);
+    tmesh.position.set(ti*1.1,-0.72,tj*.9);
+    scene.add(tmesh);
+  }
+}
+
+// ── Ground beneath ───────────────────────────────────────────────────────────
+const gGeo = new THREE.BoxGeometry(W+1, 0.1, D+1);
+const gMat = new THREE.MeshStandardMaterial({color:0x060e1a,roughness:1});
+const ground = new THREE.Mesh(gGeo, gMat);
+ground.position.set(0,-0.93,0);
+scene.add(ground);
+
+// ── Grid floor ───────────────────────────────────────────────────────────────
+const grid = new THREE.GridHelper(20, 20, 0x0d1e30, 0x0d1e30);
+grid.position.y = -1.5;
+scene.add(grid);
+
+// ── Orbit control (manual) ───────────────────────────────────────────────────
+let isDragging=false, prevMouse={x:0,y:0};
+let spherical={theta:0.7, phi:1.0, r:11};
+const TARGET = new THREE.Vector3(0,-0.3,0);
+
+function updateCamera(){
+  camera.position.x = TARGET.x + spherical.r * Math.sin(spherical.phi)*Math.sin(spherical.theta);
+  camera.position.y = TARGET.y + spherical.r * Math.cos(spherical.phi);
+  camera.position.z = TARGET.z + spherical.r * Math.sin(spherical.phi)*Math.cos(spherical.theta);
+  camera.lookAt(TARGET);
+}
+updateCamera();
+
+canvas.addEventListener('mousedown', e=>{isDragging=true;prevMouse={x:e.clientX,y:e.clientY};});
+window.addEventListener('mouseup', ()=>isDragging=false);
+window.addEventListener('mousemove', e=>{
+  if(!isDragging)return;
+  const dx=e.clientX-prevMouse.x, dy=e.clientY-prevMouse.y;
+  spherical.theta -= dx*.007;
+  spherical.phi = Math.max(.2, Math.min(Math.PI-.1, spherical.phi + dy*.007));
+  prevMouse={x:e.clientX,y:e.clientY};
+  updateCamera();
+});
+canvas.addEventListener('wheel', e=>{
+  spherical.r = Math.max(4, Math.min(20, spherical.r + e.deltaY*.015));
+  updateCamera();
+  e.preventDefault();
+},{passive:false});
+
+// Touch
+let lastTouch=null;
+canvas.addEventListener('touchstart', e=>{lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};});
+canvas.addEventListener('touchmove', e=>{
+  if(!lastTouch)return;
+  const dx=e.touches[0].clientX-lastTouch.x, dy=e.touches[0].clientY-lastTouch.y;
+  spherical.theta -= dx*.007;
+  spherical.phi = Math.max(.2, Math.min(Math.PI-.1, spherical.phi + dy*.007));
+  lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};
+  updateCamera();
+  e.preventDefault();
+},{passive:false});
+
+// ── Raycasting for click ─────────────────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+canvas.addEventListener('click', e=>{
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+  mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(layers);
+  if(hits.length) selectLayer(hits[0].object.userData.layerIdx);
+});
+
+// ── Layer selection ──────────────────────────────────────────────────────────
+const layerColors = [0x5a9aff, 0xf0a020, 0x30c080, 0x20b8c0];
+const layerEmissive = [0x1a2a6a, 0x4a2a00, 0x0a3a20, 0x083a40];
+const layerInfo = [
+  {title:'Surface Layer (Wearing Course)', items:['Non-magnetic fine asphalt concrete','Graphene/CNT heat-absorbing coating','Long-term: photonic metamaterial >95% absorption','Radiative cooling — reduces urban heat island']},
+  {title:'Power Transfer Layer', items:['Litz Wire type DD coils embedded in road bed','85 kHz — SAE J2954 standard, compatible all EVs','Segmented track: only activates under vehicle','Safe for pedestrians — no standing EM field']},
+  {title:'Sensor Layer — Nerve System', items:['Distributed Acoustic Sensing via fiber optic','Detects position, speed, axle weight in real-time','Incident response: <1 second automatic alert','Self-monitoring: micro-crack detection']},
+  {title:'Energy Harvest Layer', items:['TEG harvests ΔT between hot surface & cool subgrade','Piezoelectric captures mechanical pressure energy','Powers streetlights, sensors, auxiliary EV charging','Road as active energy prosumer to local microgrid']},
+];
+let selectedLayer = 0;
+
+function selectLayer(i){
+  selectedLayer = i;
+  document.querySelectorAll('.layer-btn').forEach((b,j)=>b.classList.toggle('sel',j===i));
+  layerMats.forEach((m,j)=>{
+    m.color.setHex(j===i ? layerColors[j] : layerDefs[j].color);
+    m.emissive.setHex(j===i ? layerEmissive[j] : 0x000000);
+    m.opacity = j===i ? 1 : 0.55;
+  });
+  const info = layerInfo[i];
+  document.getElementById('dTitle').textContent = info.title;
+  document.getElementById('dItems').innerHTML = info.items.map(it=>`<div class="ditem"><span class="di">▸</span><p>${it}</p></div>`).join('');
+  // Float selected layer up
+  layers.forEach((l,j)=>{
+    l.userData.targetY = j===i ? l.userData.baseY+0.15 : l.userData.baseY;
+  });
+}
+selectLayer(0);
+
+// ── View presets ─────────────────────────────────────────────────────────────
+function setView(v){
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('act'));
+  event.target.classList.add('act');
+  if(v==='cross'){spherical.theta=0.7;spherical.phi=1.0;spherical.r=11;}
+  else if(v==='top'){spherical.theta=0;spherical.phi=0.25;spherical.r=10;}
+  else if(v==='iso'){spherical.theta=0.8;spherical.phi=0.9;spherical.r=13;}
+  updateCamera();
+}
+
+// ── Animation mode ───────────────────────────────────────────────────────────
+let animMode = 'dwpt';
+function setAnim(m){
+  animMode=m;
+  document.querySelectorAll('.hbtn').forEach(b=>b.classList.remove('act'));
+  event.target.classList.add('act');
+}
+
+// ── Particle canvas ──────────────────────────────────────────────────────────
+const pCanvas = document.getElementById('partCanvas');
+const pCtx = pCanvas.getContext('2d');
+
+// Particles for DWPT, DAS, TEG effects
+const particles = [];
+for(let i=0;i<60;i++) particles.push({
+  x:Math.random(),y:Math.random(),vx:0,vy:0,
+  life:Math.random(),phase:Math.random()*Math.PI*2,type:i%3
+});
+
+// ── Floating 3D labels via projected coords ───────────────────────────────────
+const labelPositions3D = [
+  new THREE.Vector3(3.8, 0.25, 0),
+  new THREE.Vector3(3.8,-0.175, 0),
+  new THREE.Vector3(3.8,-0.475, 0),
+  new THREE.Vector3(3.8,-0.725, 0),
+];
+const labelEls = [];
+const labelsDiv = document.getElementById('labels');
+['Surface  ·  Wearing Course','Power  ·  DWPT 85 kHz','Sensor  ·  Fiber DAS','Energy  ·  TEG + Piezo'].forEach((txt,i)=>{
+  const el = document.createElement('div');
+  el.className = 'flabel';
+  el.textContent = txt;
+  labelsDiv.appendChild(el);
+  labelEls.push(el);
+});
+
+function updateLabels(){
+  const W2=wrap.clientWidth, H2=wrap.clientHeight;
+  labelPositions3D.forEach((pos,i)=>{
+    const v = pos.clone().project(camera);
+    const x=(v.x*.5+.5)*W2, y=(-.5*v.y+.5)*H2;
+    labelEls[i].style.left=x+'px';
+    labelEls[i].style.top=y+'px';
+    labelEls[i].style.opacity = (v.z<1 && x>0 && x<W2 && y>0 && y<H2)?'1':'0';
+  });
+}
+
+// ── Live metrics fluctuation ─────────────────────────────────────────────────
+let t=0;
+function updateMetrics(){
+  document.getElementById('mTemp').textContent = (55+Math.sin(t*.3)*6).toFixed(0)+'°C';
+  document.getElementById('mEff').textContent = (84+Math.sin(t*.2)*4).toFixed(0)+'%';
+  document.getElementById('mLat').textContent = (0.7+Math.sin(t*.5)*.2).toFixed(1)+'s';
+  document.getElementById('mTEG').textContent = (20+Math.sin(t*.4)*4).toFixed(0)+' W/m²';
+  document.getElementById('mVeh').textContent = 2+Math.floor((Math.sin(t*.15)+1)*1.5);
+}
+
+// ── Particle / overlay draw ──────────────────────────────────────────────────
+function drawParticles(){
+  const PW=pCanvas.width, PH=pCanvas.height;
+  pCtx.clearRect(0,0,PW,PH);
+  if(animMode==='idle') return;
+
+  particles.forEach(p=>{
+    p.life += .008;
+    if(p.life>1) p.life=0;
+
+    if(animMode==='dwpt'){
+      // Arcs moving horizontally in power layer zone
+      const x = (p.phase/Math.PI/2)*PW;
+      const baseX = (x + t*60*p.vx) % PW;
+      const cy = PH * .48 + Math.sin(p.phase+t)*12;
+      const alpha = Math.sin(p.life*Math.PI)*.6;
+      pCtx.beginPath();
+      pCtx.arc(baseX, cy, 3+Math.sin(p.life*Math.PI)*4, 0, Math.PI*2);
+      pCtx.fillStyle=`rgba(240,160,20,${alpha})`;
+      pCtx.fill();
+      // pulse ring
+      if(p.life<.3){
+        pCtx.beginPath();
+        pCtx.arc(baseX, cy, (p.life/.3)*20, 0, Math.PI*2);
+        pCtx.strokeStyle=`rgba(240,200,40,${.4*(1-p.life/.3)})`;
+        pCtx.lineWidth=1.5;
+        pCtx.stroke();
+      }
+    } else if(animMode==='das'){
+      // Ripple waves from fiber line
+      const fx = p.phase/(Math.PI*2)*PW;
+      const fy = PH*.52;
+      const r = p.life*80;
+      const alpha = (1-p.life)*.4;
+      pCtx.beginPath();
+      pCtx.ellipse(fx, fy, r, r*.3, 0, 0, Math.PI*2);
+      pCtx.strokeStyle=`rgba(32,184,192,${alpha})`;
+      pCtx.lineWidth=1.5;
+      pCtx.stroke();
+    } else if(animMode==='teg'){
+      // Rising heat particles
+      const bx = (p.phase/(Math.PI*2))*PW;
+      const by = PH*.42 - p.life*PH*.18;
+      const alpha = Math.sin(p.life*Math.PI)*.7;
+      const hue = 20+p.life*20;
+      pCtx.beginPath();
+      pCtx.arc(bx+(Math.sin(t*2+p.phase)*6), by, 2.5, 0, Math.PI*2);
+      pCtx.fillStyle=`hsla(${hue},90%,65%,${alpha})`;
+      pCtx.fill();
+    }
+  });
+}
+
+// ── Animate coil glow ────────────────────────────────────────────────────────
+let dwptGlow = 0;
+function animateMeshes(){
+  dwptGlow = (Math.sin(t*3)+1)*.5;
+  scene.children.forEach(obj=>{
+    if(obj.geometry && obj.geometry.type==='TorusGeometry'){
+      obj.material.emissiveIntensity = animMode==='dwpt' ? dwptGlow*2 : 0.1;
+      obj.material.emissive.setHex(animMode==='dwpt' ? 0x402000 : 0x100800);
+    }
+    if(obj.geometry && obj.geometry.type==='TubeGeometry'){
+      obj.material.emissiveIntensity = animMode==='das' ? (.5+dwptGlow*.5) : 0.15;
+    }
+  });
+  // Float selected layer
+  layers.forEach(l=>{
+    if(l.userData.targetY !== undefined){
+      l.position.y += (l.userData.targetY - l.position.y)*.08;
+    }
+  });
+}
+
+// ── Main loop ────────────────────────────────────────────────────────────────
+function animate(){
+  requestAnimationFrame(animate);
+  t += .016;
+  animateMeshes();
+  updateLabels();
+  if(t%3 < .02) updateMetrics();
+  renderer.render(scene, camera);
+  drawParticles();
+}
+
+resize();
+window.addEventListener('resize', resize);
+animate();
+
+// ── Fullscreen ───────────────────────────────────────────────────────────────
+function toggleFS(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+</script>
+</body>
+</html>
