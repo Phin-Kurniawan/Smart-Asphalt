@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Calculator | Smart Asphalt - Phase 1</title>
+    <style>
+        /* -- RESET & BASE -- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #0b1120;
+            color: #e2e8f0;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* -- CONTAINER KALKULATOR -- */
+        .eco-calc-container {
+            max-width: 900px;
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 2rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+        }
+
+        .eco-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 1.25rem;
+        }
+
+        .eco-header .icon-leaf {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 6px #4ade80);
+        }
+        .eco-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-top: 0.2rem;
+        }
+
+        /* -- GRID INPUT -- */
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 0.6rem;
+        }
+
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.9rem;
+            color: #f1f5f9;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            outline: none;
+        }
+        .input-group input[type="number"]:focus {
+            border-color: #4ade80;
+            box-shadow: 0 0 10px rgba(74,222,128,0.15);
+        }
+
+        .slider-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .slider-box input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+        .slider-box input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #4ade80;
+            cursor: pointer;
+        }
+        .adoption-badge {
+            background: #1e293b;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            color: #4ade80;
+            font-size: 1.2rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* -- HASIL METRIK -- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: #1e293b;
+            border: 1px solid #2d3a4f;
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .metric-card:hover {
+            border-color: #4ade80;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.1;
+            margin-bottom: 0.3rem;
+        }
+        .metric-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #94a3b8;
+        }
+
+        .highlight-green { color: #4ade80; }
+        .highlight-blue { color: #60a5fa; }
+        .highlight-amber { color: #fbbf24; }
+        .highlight-sky { color: #38bdf8; }
+
+        /* -- FOOTER NOTE -- */
+        .disclaimer {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #1e293b;
+            padding-top: 1.5rem;
+        }
+
+        /* responsive kecil */
+        @media (max-width: 480px) {
+            .eco-calc-container { padding: 1.5rem; }
+        }
+         .btn-back {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: 0.2s;
+            z-index: 10;
+        }
+        .btn-back:hover {
+            background: #334155;
+            border-color: #4ade80;
+            color: #f1f5f9;
+            box-shadow: 0 0 12px rgba(74,222,128,0.2);
+        }
+    </style>
+</head>
+<body>
+       <a href="index.html" class="btn-back">← Back</a>
+
+    <div class="eco-calc-container">
+        <div class="eco-header">
+            <span class="icon-leaf">🌿</span>
+            <div>
+                <h2>Phase 1 · Environmental Impact</h2>
+                <div class="subtitle">Simulation of direct emission reduction from Smart Lane</div>
+            </div>
+        </div>
+
+        <!-- INPUT AREA -->
+        <div class="input-grid">
+            <div class="input-group">
+                <label>🚧 Smart Lane Length (km)</label>
+                <input type="number" id="length" value="3" min="1" max="10" oninput="updateCalc()">
+            </div>
+            <div class="input-group">
+                <label>🏍️ Motorbike passing / day</label>
+                <input type="number" id="bikes" value="5000" min="100" oninput="updateCalc()">
+            </div>
+            <div class="input-group">
+                <label>🔌 Electric Motor Adoption</label>
+                <div class="slider-box">
+                    <input type="range" id="adoption" min="0" max="100" value="30" oninput="updateCalc()">
+                    <span class="adoption-badge" id="adoptionVal">30%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- METRIK OUTPUT -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value highlight-sky" id="switched">0</div>
+                <div class="metric-label">🏍️ Motor Switch</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value highlight-amber" id="fuelSaved">0</div>
+                <div class="metric-label">⛽ Fuel Saved (L/day)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value highlight-green" id="co2">0</div>
+                <div class="metric-label">🌫️ CO₂ Reduced (kg/day)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value highlight-blue" id="trees">0</div>
+                <div class="metric-label">🌳 Equivalent Trees Planted (/year)</div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            * Asumsi: 0.03 L/km, 2.3 kg CO₂/L bensin, 1 pohon menyerap 25 kg CO₂/tahun. Kalkulasi untuk jalur 3 km, 5.000 motor harian, adopsi 30%.
+        </div>
+    </div>
+
+    <script>
+        function updateCalc() {
+            const length = parseFloat(document.getElementById('length').value) || 3;
+            const bikes = parseFloat(document.getElementById('bikes').value) || 5000;
+            const adoption = parseFloat(document.getElementById('adoption').value) / 100;
+            document.getElementById('adoptionVal').textContent = (adoption*100).toFixed(0) + '%';
+
+            const fuelPerKm = 0.03;   // liter/km
+            const co2PerLiter = 2.3;  // kg CO₂ / liter
+
+            const switched = Math.round(bikes * adoption);
+            const fuelSavedPerMotor = length * fuelPerKm;
+            const totalFuelSaved = switched * fuelSavedPerMotor;
+            const co2PerDay = totalFuelSaved * co2PerLiter;
+            const treesPerYear = (co2PerDay * 365) / 25; // 25 kg CO₂ diserap 1 pohon/tahun
+
+            document.getElementById('switched').textContent = switched;
+            document.getElementById('fuelSaved').textContent = totalFuelSaved.toFixed(1);
+            document.getElementById('co2').textContent = co2PerDay.toFixed(1);
+            document.getElementById('trees').textContent = Math.round(treesPerYear);
+        }
+        window.onload = updateCalc;
+    </script>
+</body>
+</html>
