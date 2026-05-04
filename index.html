@@ -25,6 +25,7 @@
   <button class="tab" onclick="showPanel('sim',this)" data-en="DWPT Simulation" data-id="Simulasi DWPT">DWPT Simulation</button>
   <button class="tab" onclick="showPanel('das',this)" data-en="DAS Sensor" data-id="Sensor DAS">DAS Sensor</button>
   <button class="tab" onclick="showPanel('teg',this)" data-en="TEG Heat Flow" data-id="Aliran Panas TEG">TEG Heat Flow</button>
+  <button class="tab" onclick="window.location.href='weather.html'" data-en="Weather Simulation" data-id="Simulasi Cuaca">🌦️ Weather Simulation</button>
   <button class="tab" onclick="showPanel('roadmap',this)" data-en="Roadmap" data-id="Peta Jalan">Roadmap</button>
   <button class="tab" onclick="window.location.href='pilot-city.html'" data-en="Pilot City Map" data-id="Peta Pilot">Pilot City Map</button>
   <button class="tab" onclick="showPanel('data',this)" data-en="Impact Data" data-id="Data Dampak">Impact Data</button>
@@ -32,29 +33,81 @@
 
 <!-- ARCHITECTURE -->
 <div id="p-layers" class="panel active">
-    <div class="flex-row-between">
-        <h2 data-en="4-Layer Architecture — click a layer to inspect" data-id="Arsitektur 4 Lapis — klik lapisan untuk detail">4-Layer Architecture — click a layer to inspect</h2>
-         <button class="tab active btn-3d" onclick="window.open('architecture.html','_blank')">3D Model</button>
-    </div>
-  <div class="road">
-    <div class="layer l1" onclick="selectLayer(0)"><span class="lnum">①</span><div class="pulse"></div>
-      <span class="lname" data-en="Surface Layer" data-id="Lapisan Permukaan">Surface Layer</span>
-      <span class="ldesc" data-en="Non-magnetic concrete · Graphene/CNT · Photonic metamaterial" data-id="Beton non-magnetik · Graphene/CNT · Metamaterial fotonik">Non-magnetic concrete · Graphene/CNT · Photonic metamaterial</span>
-      <span class="lbadge">Wearing Course</span></div>
-    <div class="layer l2" onclick="selectLayer(1)"><span class="lnum">②</span><div class="pulse amber"></div>
-      <span class="lname" data-en="Power Transfer Layer" data-id="Lapisan Transfer Daya">Power Transfer Layer</span>
-      <span class="ldesc" data-en="Litz Wire DD · DWPT 85 kHz SAE J2954 · Segmented track" data-id="Kumparan Litz Wire DD · DWPT 85 kHz · Segmented track">Litz Wire DD · DWPT 85 kHz SAE J2954 · Segmented track</span>
-      <span class="lbadge">Power Layer</span></div>
-    <div class="layer l3" onclick="selectLayer(2)"><span class="lnum">③</span><div class="pulse green"></div>
-      <span class="lname" data-en="Sensor Layer" data-id="Lapisan Sensor">Sensor Layer</span>
-      <span class="ldesc" data-en="Fiber Optic DAS · position · weight · micro-crack detection" data-id="Fiber Optik DAS · posisi · bobot · deteksi retakan">Fiber Optic DAS · position · weight · micro-crack detection</span>
-      <span class="lbadge">Nerve System</span></div>
-    <div class="layer l4" onclick="selectLayer(3)"><span class="lnum">④</span><div class="pulse teal"></div>
-      <span class="lname" data-en="Energy Harvest Layer" data-id="Lapisan Panen Energi">Energy Harvest Layer</span>
-      <span class="ldesc" data-en="TEG · Piezoelectric · Road as energy prosumer" data-id="TEG · Piezoelektrik · Jalan sebagai prosumer energi">TEG · Piezoelectric · Road as energy prosumer</span>
-      <span class="lbadge">Energy Harvest</span></div>
+  <div class="flex-row-between">
+    <h2 data-en="5-Layer Architecture — click a layer to inspect"
+        data-id="Arsitektur 5 Lapis — klik lapisan untuk detail">
+      5-Layer Architecture — click a layer to inspect
+    </h2>
+    <button class="tab active btn-3d" onclick="window.open('architecture3d.html','_blank')">3D Model</button>
   </div>
-  <div id="layer-detail"><p style="font-size:13px;color:var(--muted)" data-en="← Select a layer above to view technical specifications" data-id="← Pilih lapisan di atas untuk melihat spesifikasi teknis">← Select a layer above to view technical specifications</p></div>
+
+  <div class="road" style="height:375px"> <!-- tinggi naik karena 5 layer -->
+    <!-- Layer 1: Surface -->
+    <div class="layer l1" style="top:0;height:20%" onclick="selectLayer(0)">
+      <span class="lnum">①</span><div class="pulse"></div>
+      <span class="lname" data-en="Surface Layer" data-id="Lapisan Permukaan">Surface Layer</span>
+      <span class="ldesc" data-en="Non-magnetic concrete · Graphene/CNT · Superhydrophobic coating"
+            data-id="Beton non-magnetik · Graphene/CNT · Lapisan superhydrophobic">
+        Non-magnetic concrete · Graphene/CNT · Superhydrophobic coating</span>
+      <span class="lbadge">Wearing Course</span>
+    </div>
+
+    <!-- Layer 2: Thermal Regulation (NEW) -->
+    <div class="layer l-thermal" style="top:20%;height:20%;background:#1a0a14"
+         onclick="selectLayer(1)">
+      <span class="lnum">②</span>
+      <div class="pulse" style="background:#ff5566"></div>
+      <span class="lname" style="color:#ff8899"
+            data-en="Thermal Regulation Layer" data-id="Lapisan Regulasi Termal">
+        Thermal Regulation Layer
+      </span>
+      <span class="ldesc" data-en="Graphene-PTC heating mesh · Black ice detection · Solid-state battery"
+            data-id="Mesh pemanas Graphene-PTC · Deteksi es hitam · Baterai solid-state">
+        Graphene-PTC heating mesh · Black ice detection · Solid-state battery
+      </span>
+      <span class="lbadge" style="color:#ff8899;border-color:#661020;background:#1a0818">
+        ★ NEW · De-Ice
+      </span>
+    </div>
+
+    <!-- Layer 3: Power Transfer -->
+    <div class="layer l2" style="top:40%;height:20%" onclick="selectLayer(2)">
+      <span class="lnum">③</span><div class="pulse amber"></div>
+      <span class="lname" data-en="Power Transfer Layer" data-id="Lapisan Transfer Daya">Power Transfer Layer</span>
+      <span class="ldesc" data-en="Litz Wire DD · DWPT 85 kHz SAE J2954 · Powers heating mesh"
+            data-id="Kumparan Litz Wire DD · DWPT 85 kHz · Menyuplai mesh pemanas">
+        Litz Wire DD · DWPT 85 kHz SAE J2954 · Powers heating mesh</span>
+      <span class="lbadge">Power Layer</span>
+    </div>
+
+    <!-- Layer 4: Sensor -->
+    <div class="layer l3" style="top:60%;height:20%" onclick="selectLayer(3)">
+      <span class="lnum">④</span><div class="pulse green"></div>
+      <span class="lname" data-en="Sensor Layer" data-id="Lapisan Sensor">Sensor Layer</span>
+      <span class="ldesc" data-en="Fiber Optic DAS · position · weight · black ice · micro-crack"
+            data-id="Fiber Optik DAS · posisi · bobot · es hitam · retakan mikro">
+        Fiber Optic DAS · position · weight · black ice · micro-crack</span>
+      <span class="lbadge">Nerve System</span>
+    </div>
+
+    <!-- Layer 5: Energy Harvest -->
+    <div class="layer l4" style="top:80%;height:20%" onclick="selectLayer(4)">
+      <span class="lnum">⑤</span><div class="pulse teal"></div>
+      <span class="lname" data-en="Energy Harvest Layer" data-id="Lapisan Panen Energi">Energy Harvest Layer</span>
+      <span class="ldesc" data-en="TEG · Piezoelectric · Charges thermal SSB battery reserve"
+            data-id="TEG · Piezoelektrik · Mengisi baterai SSB cadangan termal">
+        TEG · Piezoelectric · Charges thermal SSB battery reserve</span>
+      <span class="lbadge">Energy Harvest</span>
+    </div>
+  </div>
+
+  <div id="layer-detail">
+    <p style="font-size:13px;color:var(--muted)"
+       data-en="← Select a layer above to view technical specifications"
+       data-id="← Pilih lapisan di atas untuk melihat spesifikasi teknis">
+      ← Select a layer above to view technical specifications
+    </p>
+  </div>
 </div>
 
 <!-- DWPT SIM v3 -->
@@ -286,18 +339,74 @@ function showPanel(id, el) {
 
 // ── LAYER ARCHITECTURE ────────────────────────────────────────────────────────
 const layerInfoData = [
-  {en:'Surface Layer (Wearing Course)',id:'Lapisan Permukaan',
-   items:{en:['Fine non-magnetic asphalt concrete','Graphene/CNT heat-absorbing coating — feeds thermoelectric layer','Long-term: photonic metamaterial >95% light absorption','Radiative cooling — reduces urban heat island effect'],
-          id:['Aspal beton halus non-magnetik','Coating Graphene/CNT penyerap panas — menyuplai lapisan termoelektrik','Jangka panjang: metamaterial fotonik >95% absorpsi cahaya','Pendinginan radiatif — mengurangi urban heat island']}},
-  {en:'Power Transfer Layer',id:'Lapisan Transfer Daya',
-   items:{en:['Litz Wire type DD (Double-D) coils embedded in road bed','85 kHz — SAE J2954 standard, compatible with all major EV platforms','Segmented track: only activates directly under a vehicle','No standing EM field — safe for pedestrians and cyclists'],
-          id:['Kumparan Litz Wire tipe DD tertanam di badan jalan','85 kHz — standar SAE J2954, kompatibel semua platform EV utama','Segmented track: hanya aktif tepat di bawah kendaraan','Tidak ada medan EM statis — aman untuk pejalan kaki dan pesepeda']}},
-  {en:'Sensor Layer — Nerve System',id:'Lapisan Sensor — Sistem Saraf',
-   items:{en:['Distributed Acoustic Sensing (DAS) via embedded fiber optic','Detects: vehicle position, speed, axle weight in real-time','Incident response: <1 second automatic alert','Self-monitoring: micro-crack detection before structural failure'],
-          id:['Distributed Acoustic Sensing (DAS) via fiber optik tertanam','Mendeteksi: posisi kendaraan, kecepatan, berat aksle real-time','Respons insiden: <1 detik alert otomatis','Pemantauan mandiri: deteksi retakan mikro sebelum kerusakan struktur']}},
-  {en:'Energy Harvest Layer',id:'Lapisan Panen Energi',
-   items:{en:['TEG harvests ΔT between hot asphalt surface and cool subgrade','Powers streetlights, sensors, EV auxiliary charging','Piezoelectric captures mechanical pressure energy at high-traffic nodes','Road as active energy prosumer feeding local microgrids'],
-          id:['TEG memanen ΔT antara permukaan aspal panas dan subgrade dingin','Menyuplai lampu jalan, sensor, dan pengisian EV tambahan','Piezoelektrik menangkap energi tekanan mekanik di titik lalu lintas padat','Jalan sebagai prosumer energi aktif yang menyuplai mikrogrid lokal']}}
+  {
+    en:'Surface Layer (Wearing Course)', id:'Lapisan Permukaan',
+    items:{
+      en:['Fine non-magnetic asphalt concrete',
+          'Graphene/CNT heat-absorbing coating — feeds thermoelectric layer',
+          'Optional superhydrophobic nano-coating: water & ice repellent',
+          'Long-term: photonic metamaterial >95% light absorption'],
+      id:['Aspal beton halus non-magnetik',
+          'Coating Graphene/CNT penyerap panas — menyuplai lapisan termoelektrik',
+          'Opsional: lapisan nano superhydrophobic — tolak air & es',
+          'Jangka panjang: metamaterial fotonik >95% absorpsi cahaya']
+    }
+  },
+  // ★ NEW LAYER
+  {
+    en:'② Thermal Regulation Layer ★ NEW', id:'② Lapisan Regulasi Termal ★ BARU',
+    items:{
+      en:['Graphene-PTC / steel heating mesh for active de-icing',
+          'Black ice & frost detection via DAS + surface temp sensor fusion',
+          'Distributed solid-state battery (SSB) stores TEG/DWPT surplus energy',
+          'Activates only in freeze-risk conditions (<4°C) — highly energy efficient',
+          'Receives power from Layer 3 DWPT bus and Layer 5 TEG harvest'],
+      id:['Mesh pemanas Graphene-PTC / baja untuk de-icing aktif',
+          'Deteksi es hitam & beku via DAS + fusi sensor suhu permukaan',
+          'Baterai solid-state (SSB) terdistribusi menyimpan surplus energi TEG/DWPT',
+          'Aktif hanya saat risiko beku (<4°C) — sangat hemat energi',
+          'Menerima daya dari DWPT Layer 3 dan panen TEG Layer 5']
+    }
+  },
+  {
+    en:'Power Transfer Layer', id:'Lapisan Transfer Daya',
+    items:{
+      en:['Litz Wire type DD (Double-D) coils embedded in road bed',
+          '85 kHz — SAE J2954 standard, compatible with all major EV platforms',
+          'Also distributes power to Thermal Layer heating mesh via internal bus',
+          'Segmented track: only activates directly under a vehicle'],
+      id:['Kumparan Litz Wire tipe DD tertanam di badan jalan',
+          '85 kHz — standar SAE J2954, kompatibel semua platform EV utama',
+          'Juga mendistribusikan daya ke mesh pemanas Lapisan Termal via bus internal',
+          'Segmented track: hanya aktif tepat di bawah kendaraan']
+    }
+  },
+  {
+    en:'Sensor Layer — Nerve System', id:'Lapisan Sensor — Sistem Saraf',
+    items:{
+      en:['Distributed Acoustic Sensing (DAS) via embedded fiber optic',
+          'Detects: vehicle position, speed, axle weight in real-time',
+          'Black ice detection: acoustic + thermal signature fusion',
+          'Incident response: <1 second automatic alert to traffic center'],
+      id:['Distributed Acoustic Sensing (DAS) via fiber optik tertanam',
+          'Mendeteksi: posisi kendaraan, kecepatan, berat aksle real-time',
+          'Deteksi es hitam: fusi sinyal akustik + tanda termal',
+          'Respons insiden: <1 detik alert otomatis ke pusat kendali']
+    }
+  },
+  {
+    en:'Energy Harvest Layer', id:'Lapisan Panen Energi',
+    items:{
+      en:['TEG harvests ΔT between hot asphalt surface and cool subgrade',
+          'Piezoelectric captures mechanical pressure energy at high-traffic nodes',
+          'Charges Thermal Layer solid-state batteries for de-icing energy reserve',
+          'Road as active energy prosumer feeding local microgrids'],
+      id:['TEG memanen ΔT antara permukaan aspal panas dan subgrade dingin',
+          'Piezoelektrik menangkap energi tekanan mekanik di titik lalu lintas padat',
+          'Mengisi baterai solid-state Lapisan Termal sebagai cadangan energi de-icing',
+          'Jalan sebagai prosumer energi aktif yang menyuplai mikrogrid lokal']
+    }
+  }
 ];
 function selectLayer(i) {
   document.querySelectorAll('.layer').forEach((l,j) => { l.classList.remove('hi'); if(j===i) l.classList.add('hi'); });

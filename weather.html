@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Simulation | Smart Asphalt System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #070e18;
+            color: #ddeeff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            padding: 12px 20px;
+            background: #070e18f0;
+            border-bottom: 1px solid #1e3050;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        .header h1 { font-size: 1.2rem; font-weight: 600; color: #c8e0ff; }
+        .header .live-dot { width: 8px; height: 8px; background: #30c080; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .btn-back {
+            padding: 6px 16px; border-radius: 20px; border: 1px solid #1e3050; background: #0f1a2e;
+            color: #7a9acc; font-size: 0.8rem; cursor: pointer; text-decoration: none; transition: 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-back:hover { background: #1a2e50; border-color: #3a7aff; color: #aac4ff; }
+
+        /* MAIN LAYOUT */
+        .main-container { display: flex; flex: 1; min-height: 0; }
+
+        /* VISUALIZATION PANEL */
+        .viz-panel {
+            flex: 1; background: #0b1320; position: relative; display: flex;
+            align-items: center; justify-content: center; overflow: hidden;
+            border-right: 1px solid #1e3050;
+        }
+        #roadCanvas { width: 100%; height: 100%; display: block; }
+
+        /* CONTROL PANEL */
+        .ctrl-panel {
+            width: 340px; background: #0d1828; border-left: 1px solid #1e3050;
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .ctrl-section { padding: 16px 18px; border-bottom: 1px solid #1e3050; }
+        .ctrl-title {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: #3a5a80; margin-bottom: 10px; font-weight: 600;
+        }
+        .weather-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .weather-btn {
+            padding: 10px 6px; border-radius: 12px; border: 1px solid #1e3050;
+            background: #0f1a2e; color: #7a9acc; cursor: pointer; font-size: 0.75rem;
+            font-weight: 500; transition: 0.2s; text-align: center;
+        }
+        .weather-btn:hover { border-color: #3a7aff; color: #aac4ff; }
+        .weather-btn.active { background: #1a2e50; border-color: #3a7aff; color: #fff; box-shadow: 0 0 12px rgba(58,122,255,0.2); }
+
+        /* METRICS */
+        .metric-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.8rem; }
+        .metric-label { color: #3a5a80; }
+        .metric-value { color: #8ab0d0; font-weight: 600; }
+        .metric-bar { height: 6px; background: #0f1a2e; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .metric-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+        .fill-blue { background: #3a7aff; }
+        .fill-teal { background: #20b8c0; }
+        .fill-green { background: #30c080; }
+        .fill-amber { background: #f0a020; }
+
+        .narrative { font-size: 0.8rem; color: #5a7a9a; line-height: 1.5; margin-top: 8px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1><span class="live-dot"></span> Smart Asphalt — Weather Resilience Simulation</h1>
+    </div>
+    <a href="index.html" class="btn-back">← Kembali ke Dashboard</a>
+</div>
+
+<div class="main-container">
+    <!-- VISUALIZATION AREA -->
+    <div class="viz-panel">
+        <canvas id="roadCanvas"></canvas>
+    </div>
+
+    <!-- CONTROL & METRICS -->
+    <div class="ctrl-panel">
+        <div class="ctrl-section">
+            <div class="ctrl-title">🌤️ Select Weather Condition</div>
+            <div class="weather-grid">
+                <button class="weather-btn active" onclick="setWeather('sunny', this)">☀️ Sunny</button>
+                <button class="weather-btn" onclick="setWeather('rain', this)">🌧️ Rain</button>
+                <button class="weather-btn" onclick="setWeather('snow', this)">❄️ Snow</button>
+                <button class="weather-btn" onclick="setWeather('heat', this)">🔥 Extreme Heat</button>
+                <button class="weather-btn" onclick="setWeather('night', this)">🌙 Night</button>
+            </div>
+        </div>
+
+        <div class="ctrl-section">
+            <div class="ctrl-title">📊 Layer Performance</div>
+            <div id="metricsContainer">
+                <!-- Diisi oleh JavaScript -->
+            </div>
+        </div>
+
+        <div class="ctrl-section">
+            <div class="ctrl-title">📝 System Narrative</div>
+            <div id="narrativeText" class="narrative"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── DATA PERFORMANCE SETIAP KONDISI ────────────────────────
+    const weatherData = {
+        sunny: {
+            name: 'Sunny Day',
+            temp: 55, dwpt: 87, das: 95, teg: 42, piezo: 50,
+            surface: 'Dry, optimal absorption',
+            narrative: 'Ideal conditions. Photonic metamaterial absorbs >95% sunlight. TEG generates peak power from high ΔT.'
+        },
+        rain: {
+            name: 'Heavy Rain',
+            temp: 28, dwpt: 82, das: 92, teg: 8, piezo: 65,
+            surface: 'Wet, self-cleaning active',
+            narrative: 'Rain activates self-healing polymers. DWPT efficiency slightly reduced but remains safe. DAS detects rain intensity for drainage control.'
+        },
+        snow: {
+            name: 'Snowstorm',
+            temp: -2, dwpt: 80, das: 90, teg: 15, piezo: 40,
+            surface: 'Icy, heating mesh activated',
+            narrative: 'Heating layer melts snow on contact. DAS detects ice formation <1s. TEG still harvests from geothermal gradient.'
+        },
+        heat: {
+            name: 'Extreme Heat',
+            temp: 78, dwpt: 85, das: 93, teg: 65, piezo: 55,
+            surface: 'Hot, radiative cooling active',
+            narrative: 'Radiative cooling layer emits excess heat to sky. TEG output surges. Self-healing accelerated by heat.'
+        },
+        night: {
+            name: 'Night Mode',
+            temp: 18, dwpt: 86, das: 96, teg: 0, piezo: 20,
+            surface: 'Cool, stored energy used',
+            narrative: 'No sunlight. TEG dormant. System runs on solid-state batteries charged during day. DAS sensitivity peaks.'
+        }
+    };
+
+    let currentWeather = 'sunny';
+
+    // ─── CANVAS VISUALIZATION ──────────────────────────────────
+    const canvas = document.getElementById('roadCanvas');
+    const ctx = canvas.getContext('2d');
+    let animationFrame;
+
+    function resizeCanvas() {
+        const panel = canvas.parentElement;
+        canvas.width = panel.offsetWidth;
+        canvas.height = panel.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawRoad() {
+        const W = canvas.width;
+        const H = canvas.height;
+        const data = weatherData[currentWeather];
+        ctx.clearRect(0, 0, W, H);
+
+        // Sky gradient
+        let skyTop, skyBottom;
+        if (currentWeather === 'night') {
+            skyTop = '#020810'; skyBottom = '#0a1525';
+        } else if (currentWeather === 'rain' || currentWeather === 'snow') {
+            skyTop = '#1a2838'; skyBottom = '#2a3a4a';
+        } else if (currentWeather === 'heat') {
+            skyTop = '#3a2010'; skyBottom = '#5a3818';
+        } else {
+            skyTop = '#1a2a44'; skyBottom = '#2a4a6a';
+        }
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+        skyGrad.addColorStop(0, skyTop);
+        skyGrad.addColorStop(1, skyBottom);
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Ground
+        const groundY = H * 0.65;
+        ctx.fillStyle = '#0a1220';
+        ctx.fillRect(0, groundY, W, H - groundY);
+
+        // Road surface
+        const roadWidth = W * 0.7;
+        const roadX = (W - roadWidth) / 2;
+        const roadY = groundY - 15;
+        const roadH = 45;
+        ctx.fillStyle = '#1a2840';
+        ctx.fillRect(roadX, roadY, roadWidth, roadH);
+        
+        // Road surface layer (reflects weather)
+        if (currentWeather === 'rain') {
+            ctx.fillStyle = 'rgba(30,50,80,0.6)';
+            ctx.fillRect(roadX, roadY, roadWidth, roadH);
+            // Rain droplets
+            for (let i = 0; i < 50; i++) {
+                const rx = roadX + Math.random() * roadWidth;
+                const ry = roadY + Math.random() * roadH;
+                ctx.fillStyle = 'rgba(150,200,255,0.3)';
+                ctx.fillRect(rx, ry, 2, 6);
+            }
+        } else if (currentWeather === 'snow') {
+            ctx.fillStyle = '#d0d8e8';
+            ctx.fillRect(roadX, roadY, roadWidth, roadH);
+            // Snowflakes
+            for (let i = 0; i < 30; i++) {
+                const sx = roadX + Math.random() * roadWidth;
+                const sy = roadY + Math.random() * roadH;
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.beginPath(); ctx.arc(sx, sy, 2 + Math.random()*2, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        // Dashed lane lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.setLineDash([15, 20]);
+        ctx.beginPath();
+        ctx.moveTo(roadX + roadWidth/2, roadY);
+        ctx.lineTo(roadX + roadWidth/2, roadY + roadH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Layer visualization (side view cross-section)
+        const layerX = roadX + 20;
+        const layerW = roadWidth - 40;
+        const layers = [
+            { y: roadY - 3, h: 10, color: currentWeather === 'snow' ? '#e0e8f0' : '#2a3a50', label: '1. Surface' },
+            { y: roadY + 10, h: 8, color: '#3a7aff', label: '2. DWPT' },
+            { y: roadY + 20, h: 6, color: '#20b8c0', label: '3. DAS' },
+            { y: roadY + 28, h: 10, color: '#30c080', label: '4. TEG' },
+        ];
+        layers.forEach(l => {
+            ctx.fillStyle = l.color;
+            ctx.fillRect(layerX, l.y, layerW, l.h);
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '9px sans-serif';
+            ctx.fillText(l.label, layerX + 6, l.y + l.h - 2);
+        });
+
+        // Particle effects
+        if (currentWeather === 'rain') {
+            for (let i = 0; i < 30; i++) {
+                const px = Math.random() * W;
+                const py = Math.random() * H * 0.5;
+                ctx.strokeStyle = 'rgba(200,220,255,0.25)';
+                ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - 2, py + 10); ctx.stroke();
+            }
+        } else if (currentWeather === 'snow') {
+            for (let i = 0; i < 25; i++) {
+                const px = Math.random() * W;
+                const py = Math.random() * H * 0.5;
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.beginPath(); ctx.arc(px, py, 2, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        // Sun / Moon
+        const celestialX = W * 0.8;
+        const celestialY = H * 0.2;
+        if (currentWeather === 'night') {
+            const moonGrad = ctx.createRadialGradient(celestialX, celestialY, 0, celestialX, celestialY, 40);
+            moonGrad.addColorStop(0, 'rgba(220,225,255,0.8)');
+            moonGrad.addColorStop(1, 'rgba(220,225,255,0)');
+            ctx.fillStyle = moonGrad;
+            ctx.beginPath(); ctx.arc(celestialX, celestialY, 40, 0, Math.PI*2); ctx.fill();
+        } else if (currentWeather !== 'rain' && currentWeather !== 'snow') {
+            const sunGrad = ctx.createRadialGradient(celestialX, celestialY, 0, celestialX, celestialY, 50);
+            sunGrad.addColorStop(0, 'rgba(255,240,200,0.9)');
+            sunGrad.addColorStop(0.5, 'rgba(255,180,50,0.4)');
+            sunGrad.addColorStop(1, 'rgba(255,100,20,0)');
+            ctx.fillStyle = sunGrad;
+            ctx.beginPath(); ctx.arc(celestialX, celestialY, 50, 0, Math.PI*2); ctx.fill();
+        }
+    }
+
+    // ─── UPDATE METRICS & NARRATIVE ──────────────────────────
+    function updateUI() {
+        const data = weatherData[currentWeather];
+        
+        // Metrics HTML
+        const metricsHTML = `
+            <div class="metric-row"><span class="metric-label">🌡️ Surface Temp</span><span class="metric-value">${data.temp}°C</span></div>
+            <div class="metric-bar"><div class="metric-fill fill-blue" style="width:${data.temp/0.8}%"></div></div>
+            
+            <div class="metric-row" style="margin-top:12px"><span class="metric-label">⚡ DWPT Efficiency</span><span class="metric-value">${data.dwpt}%</span></div>
+            <div class="metric-bar"><div class="metric-fill fill-teal" style="width:${data.dwpt}%"></div></div>
+            
+            <div class="metric-row" style="margin-top:12px"><span class="metric-label">🎯 DAS Accuracy</span><span class="metric-value">${data.das}%</span></div>
+            <div class="metric-bar"><div class="metric-fill fill-green" style="width:${data.das}%"></div></div>
+            
+            <div class="metric-row" style="margin-top:12px"><span class="metric-label">🔋 TEG Output</span><span class="metric-value">${data.teg} W/m²</span></div>
+            <div class="metric-bar"><div class="metric-fill fill-amber" style="width:${data.teg/0.7}%"></div></div>
+            
+            <div class="metric-row" style="margin-top:12px"><span class="metric-label">⛏️ Piezo Activity</span><span class="metric-value">${data.piezo}%</span></div>
+            <div class="metric-bar"><div class="metric-fill fill-blue" style="width:${data.piezo}%"></div></div>
+            
+            <div class="metric-row" style="margin-top:14px"><span class="metric-label">🛣️ Surface Status</span><span class="metric-value" style="font-size:0.75rem">${data.surface}</span></div>
+        `;
+        document.getElementById('metricsContainer').innerHTML = metricsHTML;
+        document.getElementById('narrativeText').innerText = data.narrative;
+    }
+
+    // ─── WEATHER SWITCHER ─────────────────────────────────────
+    function setWeather(condition, btn) {
+        currentWeather = condition;
+        document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateUI();
+        drawRoad();
+    }
+
+    // ─── ANIMATION LOOP ────────────────────────────────────────
+    function animate() {
+        drawRoad();
+        animationFrame = requestAnimationFrame(animate);
+    }
+
+    // ─── START ─────────────────────────────────────────────────
+    updateUI();
+    animate();
+</script>
+</body>
+</html>

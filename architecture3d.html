@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07101e;--bg2:#0d1a2e;--border:#1a2a40;--accent:#3a7aff;--teal:#20b8c0;--green:#30c080;--amber:#f0a020;--red:#ff5566;--text:#dde8ff;--muted:#4a6080}
+body{background:var(--bg);color:var(--text);font-family:sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+#header{padding:11px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;background:#07101eee;backdrop-filter:blur(8px);gap:10px}
+#header h1{font-size:14px;font-weight:600;letter-spacing:.04em;color:#c8deff}
+#header p{font-size:10px;color:var(--muted);margin-top:1px}
+.hbtns{display:flex;gap:5px;flex-shrink:0}
+.hbtn{padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:transparent;color:#7a9acc;transition:all .2s}
+.hbtn:hover{background:var(--bg2);color:#aac4ff}
+.hbtn.act{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+#backBtn{padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:transparent;color:#7a9acc;transition:all .2s;flex-shrink:0}
+#backBtn:hover{background:rgba(7,16,30,.25);color:#aac4ff;border-color:#3a5aaa}
+#main{display:flex;flex:1;overflow:hidden}
+#canvas-wrap{flex:1;position:relative;overflow:hidden}
+canvas{display:block;width:100%!important;height:100%!important}
+/* Sidebar */
+#sidebar{width:248px;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+#sidebar-title{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:10px 14px 5px}
+.layer-btn{padding:9px 13px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:9px}
+.layer-btn:hover{background:#0f1e30}
+.layer-btn.sel{background:#0f2040;border-left:3px solid var(--accent)}
+.layer-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.layer-btn .lname{font-size:12px;font-weight:500;color:#b8d0f0}
+.layer-btn .ltag{font-size:10px;color:var(--muted);margin-top:1px}
+#detail{flex:1;padding:13px;overflow-y:auto;border-top:1px solid var(--border)}
+#detail h3{font-size:12px;font-weight:500;color:#c8deff;margin-bottom:7px}
+.ditem{display:flex;gap:7px;margin-bottom:6px}
+.ditem .di{color:var(--accent);font-size:11px;margin-top:2px;flex-shrink:0}
+.ditem p{font-size:11px;color:#6a8aaa;line-height:1.6}
+#metrics{padding:11px 13px;border-top:1px solid var(--border)}
+#metrics h4{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.metric{display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px}
+.metric .mk{color:var(--muted)}.metric .mv{color:#aac4ff;font-weight:500}
+#hint{position:absolute;bottom:8px;left:10px;font-size:10px;color:#2a4060;pointer-events:none}
+#labels{position:absolute;top:0;left:0;pointer-events:none;width:100%;height:100%}
+.flabel{position:absolute;background:rgba(7,16,30,.88);border:1px solid #1e3050;border-radius:6px;padding:3px 8px;font-size:10px;color:#8aaedd;white-space:nowrap;transform:translate(-50%,-50%);pointer-events:none;transition:opacity .3s}
+#partCanvas{position:absolute;top:0;left:0;pointer-events:none}
+#modeBar{position:absolute;top:10px;left:10px;display:flex;gap:5px}
+.mbtn{padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:rgba(7,16,30,.8);color:#7a9acc;backdrop-filter:blur(6px);transition:all .2s}
+.mbtn:hover{background:#0d1a2e;color:#aac4ff}
+.mbtn.act{background:#1a2e50;border-color:var(--accent);color:#aac4ff}
+#fsBtn{position:absolute;top:10px;right:10px;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:rgba(7,16,30,.8);color:#7a9acc;backdrop-filter:blur(6px)}
+#fsBtn:hover{color:#aac4ff}
+/* NEW: thermal indicator badge */
+.thermal-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;background:#1a1020;border:1px solid #ff5566;color:#ff8888;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="header">
+  <button id="backBtn" onclick="goBack()">← Back</button>
+  <div style="flex:1">
+    <h1>Smart Asphalt System — 3D Cross-Section <span class="thermal-badge">NEW: 5 Layers</span></h1>
+    <p>Drag to rotate · Scroll to zoom · Click a layer to inspect</p>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn act" onclick="setAnim('dwpt')">⚡ DWPT</button>
+    <button class="hbtn" onclick="setAnim('thermal')">🌡 De-Ice</button>
+    <button class="hbtn" onclick="setAnim('das')">📡 DAS</button>
+    <button class="hbtn" onclick="setAnim('teg')">♨ TEG</button>
+    <button class="hbtn" onclick="setAnim('idle')">◼ Idle</button>
+  </div>
+</div>
+<div id="main">
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+    <canvas id="partCanvas"></canvas>
+    <div id="labels"></div>
+    <div id="modeBar">
+      <button class="mbtn act" onclick="setView('cross')">Cross-section</button>
+      <button class="mbtn" onclick="setView('top')">Top view</button>
+      <button class="mbtn" onclick="setView('iso')">Isometric</button>
+    </div>
+    <button id="fsBtn" onclick="toggleFS()">⛶ Fullscreen</button>
+    <div id="hint">Drag · Scroll · Click layer</div>
+  </div>
+  <div id="sidebar">
+    <div id="sidebar-title">Road Layers (5)</div>
+    <div class="layer-btn sel" onclick="selectLayer(0)" id="lb0">
+      <div class="dot" style="background:#5a9aff"></div>
+      <div><div class="lname">① Surface Layer</div><div class="ltag">Wearing Course · Graphene</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(1)" id="lb1">
+      <div class="dot" style="background:#ff6677"></div>
+      <div><div class="lname">② Thermal Regulation</div><div class="ltag">De-Ice · Heating Mesh · SSB</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(2)" id="lb2">
+      <div class="dot" style="background:#f0a020"></div>
+      <div><div class="lname">③ Power Transfer</div><div class="ltag">DWPT · Litz Wire DD</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(3)" id="lb3">
+      <div class="dot" style="background:#30c080"></div>
+      <div><div class="lname">④ Sensor Layer</div><div class="ltag">Fiber Optic DAS</div></div>
+    </div>
+    <div class="layer-btn" onclick="selectLayer(4)" id="lb4">
+      <div class="dot" style="background:#20b8c0"></div>
+      <div><div class="lname">⑤ Energy Harvest</div><div class="ltag">TEG · Piezoelectric</div></div>
+    </div>
+    <div id="detail">
+      <h3 id="dTitle">Surface Layer</h3>
+      <div id="dItems"></div>
+    </div>
+    <div id="metrics">
+      <h4>Live Metrics</h4>
+      <div class="metric"><span class="mk">Surface temp</span><span class="mv" id="mTemp">58°C</span></div>
+      <div class="metric"><span class="mk">Thermal mesh</span><span class="mv" id="mThermal" style="color:#ff8888">OFF</span></div>
+      <div class="metric"><span class="mk">DWPT efficiency</span><span class="mv" id="mEff">87%</span></div>
+      <div class="metric"><span class="mk">DAS latency</span><span class="mv" id="mLat">0.8s</span></div>
+      <div class="metric"><span class="mk">TEG output</span><span class="mv" id="mTEG">22 W/m²</span></div>
+      <div class="metric"><span class="mk">Vehicles detected</span><span class="mv" id="mVeh">3</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const canvas = document.getElementById('c');
+const wrap = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x07101e);
+scene.fog = new THREE.Fog(0x07101e, 18, 38);
+
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(6, 5, 8);
+camera.lookAt(0, 0, 0);
+let selectedLayer=0;
+
+function selectLayer(i){
+  selectedLayer=i;
+  document.querySelectorAll('.layer-btn').forEach((b,j)=>b.classList.toggle('sel',j===i));
+  layerMats.forEach((m,j)=>{
+    m.color.setHex(j===i?layerColors[j]:layerDefs[j].color);
+    m.emissive.setHex(j===i?layerEmissive[j]:0x000000);
+    m.opacity=j===i?1:.5;
+  });
+  document.getElementById('dTitle').textContent=layerInfo[i].title;
+  document.getElementById('dItems').innerHTML=layerInfo[i].items.map(it=>`<div class="ditem"><span class="di">▸</span><p>${it}</p></div>`).join('');
+  layers.forEach((l,j)=>{l.userData.targetY=j===i?l.userData.baseY+.16:l.userData.baseY;});
+}
+function resize(){
+  const W=wrap.clientWidth, H=wrap.clientHeight;
+  renderer.setSize(W, H, false);
+  camera.aspect = W/H;
+  camera.updateProjectionMatrix();
+  pCanvas.width=W; pCanvas.height=H;
+}
+function goBack() {
+  window.location.href = 'index.html';  // atau '../index.html' jika beda folder
+}
+
+// Lights
+scene.add(new THREE.AmbientLight(0x1a2a44, 1.2));
+const sun = new THREE.DirectionalLight(0xffeedd, 1.4);
+sun.position.set(5,10,6); sun.castShadow=true; scene.add(sun);
+const light2 = new THREE.DirectionalLight(0x3a5aaa, 0.5);
+// Atur posisinya dengan .copy() atau .set()
+light2.position.copy(new THREE.Vector3(-4, 2, -3));
+// Tambahkan ke scene
+scene.add(light2);
+// ── 5 Layer definitions ───────────────────────────────────────────────────────
+const LW=7, LD=4;
+const layerDefs = [
+  {name:'Surface Layer',        h:0.25, y: 0.125, color:0x2a3a5a, emissive:0x0a1020},
+  {name:'Thermal Regulation',   h:0.20, y:-0.100, color:0x3a1828, emissive:0x180808}, // NEW
+  {name:'Power Transfer',       h:0.35, y:-0.375, color:0x1e2e48, emissive:0x0a0818},
+  {name:'Sensor Layer',         h:0.25, y:-0.625, color:0x162438, emissive:0x060e18},
+  {name:'Energy Harvest',       h:0.30, y:-0.875, color:0x0f1c2e, emissive:0x040a14},
+];
+const layers=[], layerMats=[];
+
+layerDefs.forEach((def,i)=>{
+  const geo=new THREE.BoxGeometry(LW,def.h,LD);
+  const mat=new THREE.MeshStandardMaterial({color:def.color,emissive:def.emissive,roughness:.6,metalness:.3,transparent:true,opacity:1});
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.position.set(0,def.y,0);
+  mesh.castShadow=true; mesh.receiveShadow=true;
+  mesh.userData={layerIdx:i, baseY:def.y};
+  scene.add(mesh); layers.push(mesh); layerMats.push(mat);
+  const edges=new THREE.EdgesGeometry(geo);
+  mesh.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0x2a4060,transparent:true,opacity:.5})));
+});
+
+// Road markings
+const mkM=new THREE.MeshStandardMaterial({color:0x2a4a80,emissive:0x0a1828,roughness:.8});
+for(let i=-2;i<=2;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.5,.9),mkM);m.rotation.x=-Math.PI/2;m.position.set(i*1.4,.251,0);scene.add(m);}
+
+// NEW: Heating mesh wires (in thermal layer, y≈-0.1)
+const heatMeshMat=new THREE.MeshStandardMaterial({color:0xff3344,emissive:0x440010,roughness:.3,metalness:.6});
+for(let xi=-3;xi<=3;xi++){
+  const g=new THREE.CylinderGeometry(.02,.02,LD-.1,6);
+  const m=new THREE.Mesh(g,heatMeshMat);
+  m.rotation.z=Math.PI/2; m.position.set(xi*.9,-0.1,0);
+  scene.add(m);
+}
+// cross wires
+const heatMeshMatZ=new THREE.MeshStandardMaterial({color:0xff5566,emissive:0x330010,roughness:.3,metalness:.6});
+for(let zi=-1;zi<=1;zi++){
+  const g=new THREE.CylinderGeometry(.015,.015,LW-.1,6);
+  const m=new THREE.Mesh(g,heatMeshMatZ);
+  m.position.set(0,-0.095,zi*1.2);
+  scene.add(m);
+}
+
+// NEW: Solid-state battery modules (thin slabs in thermal layer)
+const ssbMat=new THREE.MeshStandardMaterial({color:0x8020a0,emissive:0x200830,roughness:.4,metalness:.8});
+for(let si=-2;si<=2;si++){
+  const g=new THREE.BoxGeometry(.5,.08,.3);
+  const m=new THREE.Mesh(g,ssbMat);
+  m.position.set(si*1.1,-0.07,1.2);
+  scene.add(m);
+}
+
+// Coils in power layer
+const coilColors=[0xf0a020,0xffc040];
+for(let ci=0;ci<3;ci++){const cx=-2.2+ci*2.2;for(let ri=0;ri<2;ri++){const cg=new THREE.TorusGeometry(.55,.06,8,24);const cm=new THREE.MeshStandardMaterial({color:coilColors[ri],emissive:0x201000,roughness:.4,metalness:.7});const ct=new THREE.Mesh(cg,cm);ct.rotation.x=Math.PI/2;ct.position.set(cx,-0.375,ri===0?-.8:.8);scene.add(ct);}}
+
+// Fiber optic in sensor layer
+const fCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(-3.3,-0.62,-1.5),new THREE.Vector3(-1,-0.62,.8),new THREE.Vector3(1,-0.62,-1),new THREE.Vector3(3.3,-0.62,1.5)]);
+scene.add(new THREE.Mesh(new THREE.TubeGeometry(fCurve,40,.04,6,false),new THREE.MeshStandardMaterial({color:0x20b8c0,emissive:0x0a6070,roughness:.2,metalness:.5})));
+
+// TEG modules in energy layer
+const tegM=new THREE.MeshStandardMaterial({color:0x20b8c0,emissive:0x082028,roughness:.3,metalness:.8});
+for(let ti=-2;ti<=2;ti++){for(let tj=-1;tj<=1;tj+=2){const m=new THREE.Mesh(new THREE.BoxGeometry(.6,.15,.5),tegM);m.position.set(ti*1.1,-0.87,tj*.9);scene.add(m);}}
+
+// Ground + grid
+const baseMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(LW + 1, 0.1, LD + 1),
+  new THREE.MeshStandardMaterial({ color: 0x060e1a, roughness: 1 })
+);
+baseMesh.position.copy(new THREE.Vector3(0, -1.08, 0));
+scene.add(baseMesh);
+const grid=new THREE.GridHelper(20,20,0x0d1e30,0x0d1e30);grid.position.y=-1.5;scene.add(grid);
+
+// ── Orbit ─────────────────────────────────────────────────────────────────────
+let isDragging=false, prevMouse={x:0,y:0};
+let spherical={theta:.7,phi:1.0,r:11};
+const TARGET=new THREE.Vector3(0,-.4,0);
+function updateCamera(){
+  camera.position.x=TARGET.x+spherical.r*Math.sin(spherical.phi)*Math.sin(spherical.theta);
+  camera.position.y=TARGET.y+spherical.r*Math.cos(spherical.phi);
+  camera.position.z=TARGET.z+spherical.r*Math.sin(spherical.phi)*Math.cos(spherical.theta);
+  camera.lookAt(TARGET);
+}
+updateCamera();
+canvas.addEventListener('mousedown',e=>{isDragging=true;prevMouse={x:e.clientX,y:e.clientY};});
+window.addEventListener('mouseup',()=>isDragging=false);
+window.addEventListener('mousemove',e=>{if(!isDragging)return;spherical.theta-=(e.clientX-prevMouse.x)*.007;spherical.phi=Math.max(.2,Math.min(Math.PI-.1,spherical.phi+(e.clientY-prevMouse.y)*.007));prevMouse={x:e.clientX,y:e.clientY};updateCamera();});
+canvas.addEventListener('wheel',e=>{spherical.r=Math.max(4,Math.min(20,spherical.r+e.deltaY*.015));updateCamera();e.preventDefault();},{passive:false});
+let lastTouch=null;
+canvas.addEventListener('touchstart',e=>{lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};});
+canvas.addEventListener('touchmove',e=>{if(!lastTouch)return;spherical.theta-=(e.touches[0].clientX-lastTouch.x)*.007;spherical.phi=Math.max(.2,Math.min(Math.PI-.1,spherical.phi+(e.touches[0].clientY-lastTouch.y)*.007));lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};updateCamera();e.preventDefault();},{passive:false});
+
+// ── Raycasting ────────────────────────────────────────────────────────────────
+const raycaster=new THREE.Raycaster(), mouse=new THREE.Vector2();
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
+  mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(layers);
+  if(hits.length) selectLayer(hits[0].object.userData.layerIdx);
+});
+
+// ── Layer data ────────────────────────────────────────────────────────────────
+const layerColors=[0x5a9aff,0xff6677,0xf0a020,0x30c080,0x20b8c0];
+const layerEmissive=[0x1a2a6a,0x661020,0x4a2a00,0x0a3a20,0x083a40];
+const layerInfo=[
+  {title:'① Surface Layer (Wearing Course)',items:['Non-magnetic fine asphalt concrete','Graphene/CNT heat-absorbing coating — feeds thermoelectric layer','Optional superhydrophobic nano-coating: water & ice-repellent surface','Long-term: photonic metamaterial >95% light absorption']},
+  {title:'② Thermal Regulation Layer ★ NEW',items:['Graphene-PTC / steel heating mesh for active de-icing','Black ice detection via DAS + surface temp sensor fusion','Distributed solid-state battery (SSB) stores TEG/DWPT surplus energy','Activates only in freeze-risk conditions (<4°C) — energy efficient','Supplies power to heating mesh from Layer 5 harvested energy']},
+  {title:'③ Power Transfer Layer',items:['Litz Wire type DD (Double-D) coils embedded in road bed','85 kHz — SAE J2954 standard, compatible with all major EV platforms','Also distributes power to Thermal Layer heating mesh','Segmented track: only activates under vehicle — no standing EM field']},
+  {title:'④ Sensor Layer — Nerve System',items:['Distributed Acoustic Sensing (DAS) via embedded fiber optic','Detects vehicle position, speed, axle weight in real-time','Black ice & frost detection via acoustic + thermal signature','Incident response: <1 second automatic alert to traffic center']},
+  {title:'⑤ Energy Harvest Layer',items:['TEG harvests ΔT between hot asphalt surface and cool subgrade','Piezoelectric captures mechanical pressure energy at high-traffic nodes','Charges Thermal Layer solid-state batteries for de-icing reserve','Road as active energy prosumer feeding local microgrids']},
+];
+
+selectLayer(0);
+
+// ── View presets ──────────────────────────────────────────────────────────────
+function setView(v){document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('act'));event.target.classList.add('act');if(v==='cross'){spherical.theta=.7;spherical.phi=1.0;spherical.r=11;}else if(v==='top'){spherical.theta=0;spherical.phi=.25;spherical.r=10;}else if(v==='iso'){spherical.theta=.8;spherical.phi=.9;spherical.r=13;}updateCamera();}
+
+// ── Anim mode ─────────────────────────────────────────────────────────────────
+let animMode='dwpt';
+function setAnim(m){animMode=m;document.querySelectorAll('.hbtn').forEach(b=>b.classList.remove('act'));event.target.classList.add('act');}
+
+// ── Particle canvas ───────────────────────────────────────────────────────────
+const pCanvas=document.getElementById('partCanvas');
+const pCtx=pCanvas.getContext('2d');
+const particles=[];
+for(let i=0;i<70;i++) particles.push({x:Math.random(),y:Math.random(),life:Math.random(),phase:Math.random()*Math.PI*2,type:i%4});
+
+// ── Floating labels ───────────────────────────────────────────────────────────
+const labelPos3D=[
+  new THREE.Vector3(3.8, 0.25, 0),
+  new THREE.Vector3(3.8,-0.10, 0),  // thermal layer
+  new THREE.Vector3(3.8,-0.375,0),
+  new THREE.Vector3(3.8,-0.625,0),
+  new THREE.Vector3(3.8,-0.875,0),
+];
+const labelTexts=['Surface · Graphene','Thermal · De-Ice · SSB','Power · DWPT 85kHz','Sensor · Fiber DAS','Energy · TEG+Piezo'];
+const labelEls=[];
+const labelsDiv=document.getElementById('labels');
+labelTexts.forEach((txt,i)=>{
+  const el=document.createElement('div');
+  el.className='flabel';
+  el.textContent=txt;
+  if(i===1) el.style.color='#ff8888'; // thermal layer pink
+  labelsDiv.appendChild(el);
+  labelEls.push(el);
+});
+
+function updateLabels(){
+  const W2=wrap.clientWidth, H2=wrap.clientHeight;
+  labelPos3D.forEach((pos,i)=>{
+    const v=pos.clone().project(camera);
+    const x=(v.x*.5+.5)*W2, y=(-.5*v.y+.5)*H2;
+    labelEls[i].style.left=x+'px'; labelEls[i].style.top=y+'px';
+    labelEls[i].style.opacity=(v.z<1&&x>0&&x<W2&&y>0&&y<H2)?'1':'0';
+  });
+}
+
+// ── Metrics ───────────────────────────────────────────────────────────────────
+let t=0;
+function updateMetrics(){
+  const surfTemp=(55+Math.sin(t*.3)*6).toFixed(0);
+  document.getElementById('mTemp').textContent=surfTemp+'°C';
+  const thermalOn=animMode==='thermal';
+  const thermalEl=document.getElementById('mThermal');
+  thermalEl.textContent=thermalOn?'ACTIVE — '+(280+Math.round(Math.sin(t)*20))+'W/m²':'STANDBY';
+  thermalEl.style.color=thermalOn?'#ff6677':'#5a7a9a';
+  document.getElementById('mEff').textContent=(84+Math.sin(t*.2)*4).toFixed(0)+'%';
+  document.getElementById('mLat').textContent=(0.7+Math.sin(t*.5)*.2).toFixed(1)+'s';
+  document.getElementById('mTEG').textContent=(20+Math.sin(t*.4)*4).toFixed(0)+' W/m²';
+  document.getElementById('mVeh').textContent=2+Math.floor((Math.sin(t*.15)+1)*1.5);
+}
+
+// ── Particle draw ─────────────────────────────────────────────────────────────
+function drawParticles(){
+  const PW=pCanvas.width, PH=pCanvas.height;
+  pCtx.clearRect(0,0,PW,PH);
+  if(animMode==='idle') return;
+
+  particles.forEach(p=>{
+    p.life+=.008;
+    if(p.life>1) p.life=0;
+
+    if(animMode==='dwpt'){
+      const bx=(p.phase/Math.PI/2)*PW;
+      const cx=(bx+t*60*p.phase*.1)%PW;
+      const cy=PH*.50+Math.sin(p.phase+t)*10;
+      const al=Math.sin(p.life*Math.PI)*.6;
+      pCtx.beginPath();pCtx.arc(cx,cy,3+Math.sin(p.life*Math.PI)*4,0,Math.PI*2);
+      pCtx.fillStyle=`rgba(240,160,20,${al})`;pCtx.fill();
+      if(p.life<.3){pCtx.beginPath();pCtx.arc(cx,cy,(p.life/.3)*20,0,Math.PI*2);pCtx.strokeStyle=`rgba(240,200,40,${.4*(1-p.life/.3)})`;pCtx.lineWidth=1.5;pCtx.stroke();}
+
+    } else if(animMode==='thermal'){
+      // Horizontal heat waves spreading through thermal layer
+      const cx=(p.phase/(Math.PI*2))*PW;
+      const cy=PH*.46+Math.sin(p.life*Math.PI*2)*(PH*.03);
+      const al=Math.sin(p.life*Math.PI)*.8;
+      // heat glow dot
+      pCtx.beginPath();pCtx.arc(cx+(Math.sin(t*3+p.phase)*8),cy,2+al*4,0,Math.PI*2);
+      pCtx.fillStyle=`rgba(255,${80+Math.round(al*80)},${30+Math.round(p.life*40)},${al})`;
+      pCtx.fill();
+      // ripple when new
+      if(p.life<.25){
+        const rr=(p.life/.25)*22;
+        pCtx.beginPath();pCtx.arc(cx,cy,rr,0,Math.PI*2);
+        pCtx.strokeStyle=`rgba(255,80,40,${.5*(1-p.life/.25)})`;pCtx.lineWidth=1.2;pCtx.stroke();
+      }
+      // snowflake melting at top
+      if(p.type===0&&p.life<.5){
+        const sx=cx+(Math.sin(t+p.phase*2)*PW*.2);
+        const sy=PH*.40-p.life*PH*.04;
+        pCtx.fillStyle=`rgba(180,220,255,${(1-p.life*2)*.6})`;
+        pCtx.font=`${8+p.life*4}px sans-serif`;pCtx.fillText('❄',sx,sy);
+      }
+
+    } else if(animMode==='das'){
+      const fx=p.phase/(Math.PI*2)*PW, fy=PH*.56;
+      const rr=p.life*80, al=(1-p.life)*.4;
+      pCtx.beginPath();pCtx.ellipse(fx,fy,rr,rr*.3,0,0,Math.PI*2);
+      pCtx.strokeStyle=`rgba(32,184,192,${al})`;pCtx.lineWidth=1.5;pCtx.stroke();
+
+    } else if(animMode==='teg'){
+      const bx=(p.phase/(Math.PI*2))*PW;
+      const by=PH*.43-p.life*PH*.18;
+      const al=Math.sin(p.life*Math.PI)*.7;
+      pCtx.beginPath();pCtx.arc(bx+Math.sin(t*2+p.phase)*6,by,2.5,0,Math.PI*2);
+      pCtx.fillStyle=`hsla(${20+p.life*20},90%,65%,${al})`;pCtx.fill();
+    }
+  });
+}
+
+// ── Mesh animations ───────────────────────────────────────────────────────────
+let dwptGlow=0;
+function animateMeshes(){
+  dwptGlow=(Math.sin(t*3)+1)*.5;
+  const thermalOn=animMode==='thermal';
+  scene.children.forEach(obj=>{
+    if(!obj.material) return;
+    if(obj.geometry?.type==='TorusGeometry'){
+      obj.material.emissiveIntensity=animMode==='dwpt'?dwptGlow*2:.1;
+      obj.material.emissive?.setHex(animMode==='dwpt'?0x402000:0x100800);
+    }
+    if(obj.geometry?.type==='TubeGeometry'){
+      obj.material.emissiveIntensity=animMode==='das'?(.5+dwptGlow*.5):.15;
+    }
+    // Heating mesh wires glow when thermal mode
+    if(obj.geometry?.type==='CylinderGeometry'){
+      const isHeat=obj.material.color?.getHex()===0xff3344||obj.material.color?.getHex()===0xff5566;
+      if(isHeat){
+        obj.material.emissiveIntensity=thermalOn?(dwptGlow*1.8+.2):.05;
+        obj.material.emissive?.setHex(thermalOn?0x660010:0x220008);
+      }
+    }
+    // SSB batteries pulse purple in thermal mode
+    if(obj.geometry?.type==='BoxGeometry'&&obj.material.color?.getHex()===0x8020a0){
+      obj.material.emissiveIntensity=thermalOn?(.3+dwptGlow*.5):.05;
+    }
+  });
+  // Thermal layer own glow
+  if(thermalOn){
+    layerMats[1].emissive.setHex(0x440010);
+    layerMats[1].emissiveIntensity=.4+Math.sin(t*2)*.2;
+  } else {
+    layerMats[1].emissiveIntensity=selectedLayer===1?.3:.0;
+  }
+  // Float selected layer
+  layers.forEach(l=>{
+    if(l.userData.targetY!==undefined) l.position.y+=(l.userData.targetY-l.position.y)*.08;
+  });
+}
+
+// ── Main loop ─────────────────────────────────────────────────────────────────
+function animate(){
+  requestAnimationFrame(animate);
+  t+=.016;
+  animateMeshes();
+  updateLabels();
+  if(t%3<.02) updateMetrics();
+  renderer.render(scene,camera);
+  drawParticles();
+}
+
+resize();
+window.addEventListener('resize',resize);
+animate();
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+</script>
+</body>
+</html>
