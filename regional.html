@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regional Adaptation | Smart Asphalt System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #070e18; color: #ddeeff;
+            display: flex; flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            padding: 12px 20px; background: #070e18f0;
+            border-bottom: 1px solid #1e3050;
+            display: flex; align-items: center; justify-content: space-between;
+            backdrop-filter: blur(10px); z-index: 100; flex-shrink: 0;
+        }
+        .header h1 { font-size: 1.1rem; font-weight: 600; color: #c8e0ff; }
+        .btn-back {
+            padding: 6px 16px; border-radius: 20px; border: 1px solid #1e3050;
+            background: #0f1a2e; color: #7a9acc; font-size: 0.8rem;
+            cursor: pointer; text-decoration: none; transition: 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-back:hover { background: #1a2e50; border-color: #3a7aff; color: #aac4ff; }
+
+        /* MAIN LAYOUT */
+        .main-container { display: flex; flex: 1; min-height: 0; }
+
+        /* LEFT PANEL (control) */
+        .ctrl-panel {
+            width: 300px; background: #0d1828; border-right: 1px solid #1e3050;
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .ctrl-section { padding: 16px 18px; border-bottom: 1px solid #1e3050; }
+        .ctrl-title {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: #3a5a80; margin-bottom: 10px; font-weight: 600;
+        }
+        .region-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .region-btn {
+            padding: 10px 6px; border-radius: 12px; border: 1px solid #1e3050;
+            background: #0f1a2e; color: #7a9acc; cursor: pointer; font-size: 0.75rem;
+            font-weight: 500; transition: 0.2s; text-align: center;
+        }
+        .region-btn:hover { border-color: #3a7aff; color: #aac4ff; }
+        .region-btn.active { background: #1a2e50; border-color: #3a7aff; color: #fff; box-shadow: 0 0 12px rgba(58,122,255,0.2); }
+
+        .layer-config { margin-top: 12px; }
+        .layer-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; }
+        .layer-name { color: #8ab0d0; }
+        .layer-status {
+            padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;
+        }
+        .status-required { background: #1a3a2a; color: #30c080; }
+        .status-optional { background: #2a2a1a; color: #f0a020; }
+        .status-none { background: #1a1a2a; color: #3a5a80; }
+
+        .cost-estimate { margin-top: 12px; font-size: 0.8rem; color: #5a7a9a; }
+
+        /* RIGHT PANEL (visual) */
+        .viz-panel {
+            flex: 1; background: #0b1320; display: flex;
+            align-items: center; justify-content: center; position: relative;
+        }
+        canvas { width: 100%; height: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>🌍 Smart Asphalt — Regional Configuration</h1>
+    </div>
+    <a href="index.html" class="btn-back">← Dashboard</a>
+</div>
+
+<div class="main-container">
+    <!-- CONTROL PANEL -->
+    <div class="ctrl-panel">
+        <div class="ctrl-section">
+            <div class="ctrl-title">🗺️ Select Climate Zone</div>
+            <div class="region-grid">
+                <button class="region-btn active" onclick="setRegion('tropical', this)">🌴 Tropical</button>
+                <button class="region-btn" onclick="setRegion('arid', this)">🏜️ Arid/Desert</button>
+                <button class="region-btn" onclick="setRegion('temperate', this)">🌳 Temperate</button>
+                <button class="region-btn" onclick="setRegion('continental', this)">❄️ Continental</button>
+                <button class="region-btn" onclick="setRegion('polar', this)">🧊 Polar</button>
+            </div>
+        </div>
+
+        <div class="ctrl-section">
+            <div class="ctrl-title">📊 Recommended Layers</div>
+            <div id="layerConfigContainer" class="layer-config">
+                <!-- dynamically filled -->
+            </div>
+            <div class="cost-estimate" id="costEstimate"></div>
+        </div>
+
+        <div class="ctrl-section">
+            <div class="ctrl-title">📝 Example Cities</div>
+            <div id="exampleCities" style="font-size:0.75rem; color:#5a7a9a;"></div>
+        </div>
+    </div>
+
+    <!-- VISUALIZATION PANEL -->
+    <div class="viz-panel">
+        <canvas id="regionCanvas"></canvas>
+    </div>
+</div>
+
+<script>
+    // ─── DATA PER ZONA IKLIM ──────────────────────────────────
+    const regionData = {
+        tropical: {
+            name: 'Tropical (e.g., Jakarta, Singapore)',
+            cityExamples: 'Jakarta, Singapore, Lagos, Mumbai',
+            layers: {
+                surface: 'required',
+                dwpt: 'required',
+                das: 'required',
+                teg: 'required',
+                heating: 'none'
+            },
+            costPerKm: 'Rp 7–9 M (no heating layer)',
+            description: 'High TEG output year-round. Heating layer not needed. Focus on cooling and anti-flood drainage.'
+        },
+        arid: {
+            name: 'Arid / Desert (e.g., Dubai, Riyadh)',
+            cityExamples: 'Dubai, Riyadh, Phoenix, Cairo',
+            layers: {
+                surface: 'required',
+                dwpt: 'required',
+                das: 'required',
+                teg: 'required',
+                heating: 'optional'
+            },
+            costPerKm: 'Rp 9–11 M (optional heating)',
+            description: 'Extreme heat boosts TEG; radiative cooling layer critical. Heating optional for rare cold nights.'
+        },
+        temperate: {
+            name: 'Temperate (e.g., London, Tokyo)',
+            cityExamples: 'London, Tokyo, New York, Shanghai',
+            layers: {
+                surface: 'required',
+                dwpt: 'required',
+                das: 'required',
+                teg: 'required',
+                heating: 'optional'
+            },
+            costPerKm: 'Rp 9–11 M',
+            description: 'Full system recommended for seasonal variation. Heating mesh useful for winter but not mandatory.'
+        },
+        continental: {
+            name: 'Continental (e.g., Moscow, Chicago)',
+            cityExamples: 'Moscow, Chicago, Beijing, Toronto',
+            layers: {
+                surface: 'required',
+                dwpt: 'required',
+                das: 'required',
+                teg: 'required',
+                heating: 'required'
+            },
+            costPerKm: 'Rp 11–13 M (full winter package)',
+            description: 'Harsh winters demand active de-icing. Heating layer mandatory. TEG still harvests geothermal gradient.'
+        },
+        polar: {
+            name: 'Polar / Subarctic (e.g., Oslo, Anchorage)',
+            cityExamples: 'Oslo, Anchorage, Yakutsk, Nuuk',
+            layers: {
+                surface: 'required',
+                dwpt: 'required',
+                das: 'required',
+                teg: 'optional',
+                heating: 'required'
+            },
+            costPerKm: 'Rp 12–14 M (extreme winter pack)',
+            description: 'TEG output limited due to low ΔT. Heating layer essential. Battery storage from summer months critical.'
+        }
+    };
+
+    let currentRegion = 'tropical';
+
+    // ─── UPDATE UI ─────────────────────────────────────────────
+    function updateUI() {
+        const data = regionData[currentRegion];
+        const container = document.getElementById('layerConfigContainer');
+        const layers = data.layers;
+        let html = '';
+        for (let [layer, status] of Object.entries(layers)) {
+            const statusClass = status === 'required' ? 'status-required' : status === 'optional' ? 'status-optional' : 'status-none';
+            const statusText = status === 'required' ? 'Required' : status === 'optional' ? 'Optional' : 'Not Needed';
+            const layerName = {
+                surface: '1. Surface Layer',
+                dwpt: '2. Power Transfer (DWPT)',
+                das: '3. Sensor Layer (DAS)',
+                teg: '4. Energy Harvest (TEG)',
+                heating: '5. Thermal Regulation (Heating)'
+            }[layer] || layer;
+            html += `<div class="layer-item">
+                <span class="layer-name">${layerName}</span>
+                <span class="layer-status ${statusClass}">${statusText}</span>
+            </div>`;
+        }
+        container.innerHTML = html;
+        document.getElementById('costEstimate').innerText = `Estimated cost: ${data.costPerKm}`;
+        document.getElementById('exampleCities').innerText = data.cityExamples;
+    }
+
+    // ─── SIMPLE CANVAS VISUALIZATION ─────────────────────────────
+    const canvas = document.getElementById('regionCanvas');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas() {
+        const panel = canvas.parentElement;
+        canvas.width = panel.offsetWidth;
+        canvas.height = panel.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawVisual() {
+        const W = canvas.width;
+        const H = canvas.height;
+        const data = regionData[currentRegion];
+        ctx.clearRect(0, 0, W, H);
+
+        // Background gradient based on climate
+        let skyTop, skyBottom;
+        switch (currentRegion) {
+            case 'tropical': skyTop = '#1a3a2a'; skyBottom = '#2a5a3a'; break;
+            case 'arid':     skyTop = '#3a3018'; skyBottom = '#5a4020'; break;
+            case 'temperate': skyTop = '#1a2a44'; skyBottom = '#2a4a6a'; break;
+            case 'continental': skyTop = '#1a2838'; skyBottom = '#3a4a60'; break;
+            case 'polar':    skyTop = '#0a1a2a'; skyBottom = '#1a3a4a'; break;
+        }
+        const grad = ctx.createLinearGradient(0,0,0,H);
+        grad.addColorStop(0, skyTop); grad.addColorStop(1, skyBottom);
+        ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+        // Ground
+        const roadY = H * 0.6;
+        ctx.fillStyle = '#0a1220';
+        ctx.fillRect(0, roadY, W, H - roadY);
+
+        // Road section visualization - dynamic colors per region
+        const roadW = W * 0.65;
+        const roadX = (W - roadW)/2;
+        const layerH = 16;
+        const gap = 3;
+        let startY = roadY - 25;
+        const layers = [
+            {name:'Surface', color: currentRegion==='polar'?'#d0d8e8':'#2a3a50', active: data.layers.surface !== 'none'},
+            {name:'DWPT', color:'#3a7aff', active: data.layers.dwpt !== 'none'},
+            {name:'DAS', color:'#20b8c0', active: data.layers.das !== 'none'},
+            {name:'TEG', color:'#30c080', active: data.layers.teg !== 'none'},
+            {name:'Heating', color:'#f0a020', active: data.layers.heating !== 'none'},
+        ];
+        layers.forEach(l => {
+            if (!l.active) return;
+            ctx.fillStyle = l.color;
+            ctx.fillRect(roadX, startY, roadW, layerH);
+            ctx.fillStyle = '#fff';
+            ctx.font = '9px sans-serif';
+            ctx.fillText(l.name, roadX+10, startY+12);
+            startY += layerH + gap;
+        });
+
+        // City silhouette or icon representing region
+        ctx.font = '10px sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.textAlign = 'center';
+        ctx.fillText(data.name, W/2, roadY + 30);
+    }
+
+    // ─── REGION SWITCHER ──────────────────────────────────────
+    function setRegion(region, btn) {
+        currentRegion = region;
+        document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateUI();
+        drawVisual();
+    }
+
+    // Initial load
+    updateUI();
+    drawVisual();
+    window.addEventListener('resize', drawVisual);
+</script>
+</body>
+</html>
