@@ -22,6 +22,7 @@
 
 <div class="tabs">
   <button class="tab active" onclick="showPanel('layers',this)" data-en="Architecture" data-id="Arsitektur">Architecture</button>
+   <button class="tab" onclick="showPanel('challenges',this)" data-en="⚡ Challenges" data-id="⚡ Hambatan">⚡ Challenges</button>
   <button class="tab" onclick="showPanel('sim',this)" data-en="DWPT Simulation" data-id="Simulasi DWPT">DWPT Simulation</button>
   <button class="tab" onclick="showPanel('das',this)" data-en="DAS Sensor" data-id="Sensor DAS">DAS Sensor</button>
   <button class="tab" onclick="showPanel('teg',this)" data-en="TEG Heat Flow" data-id="Aliran Panas TEG">TEG Heat Flow</button>
@@ -37,14 +38,14 @@
   <div class="flex-row-between">
     <h2 data-en="5-Layer Architecture — click a layer to inspect"
         data-id="Arsitektur 5 Lapis — klik lapisan untuk detail">
-      5-Layer Architecture — click a layer to inspect
+      6-Layer Architecture — click a layer to inspect
     </h2>
     <button class="tab active btn-3d" onclick="window.open('architecture3d.html','_blank')">3D Model</button>
   </div>
 
   <div class="road" style="height:375px"> <!-- tinggi naik karena 5 layer -->
     <!-- Layer 1: Surface -->
-    <div class="layer l1" style="top:0;height:20%" onclick="selectLayer(0)">
+    <div class="layer l1" style="top:0;height:16%" onclick="selectLayer(0)">
       <span class="lnum">①</span><div class="pulse"></div>
       <span class="lname" data-en="Surface Layer" data-id="Lapisan Permukaan">Surface Layer</span>
       <span class="ldesc" data-en="Non-magnetic concrete · Graphene/CNT · Superhydrophobic coating"
@@ -54,7 +55,7 @@
     </div>
 
     <!-- Layer 2: Thermal Regulation (NEW) -->
-    <div class="layer l-thermal" style="top:20%;height:20%;background:#1a0a14"
+    <div class="layer l-thermal" style="top:16%;height:16%;background:#1a0a14"
          onclick="selectLayer(1)">
       <span class="lnum">②</span>
       <div class="pulse" style="background:#ff5566"></div>
@@ -67,12 +68,12 @@
         Graphene-PTC heating mesh · Black ice detection · Solid-state battery
       </span>
       <span class="lbadge" style="color:#ff8899;border-color:#661020;background:#1a0818">
-        ★ NEW · De-Ice
+        ★ De-Ice
       </span>
     </div>
 
     <!-- Layer 3: Power Transfer -->
-    <div class="layer l2" style="top:40%;height:20%" onclick="selectLayer(2)">
+    <div class="layer l2" style="top:32%;height:17%" onclick="selectLayer(2)">
       <span class="lnum">③</span><div class="pulse amber"></div>
       <span class="lname" data-en="Power Transfer Layer" data-id="Lapisan Transfer Daya">Power Transfer Layer</span>
       <span class="ldesc" data-en="Litz Wire DD · DWPT 85 kHz SAE J2954 · Powers heating mesh"
@@ -82,7 +83,7 @@
     </div>
 
     <!-- Layer 4: Sensor -->
-    <div class="layer l3" style="top:60%;height:20%" onclick="selectLayer(3)">
+    <div class="layer l3" style="top:48%;height:17%" onclick="selectLayer(3)">
       <span class="lnum">④</span><div class="pulse green"></div>
       <span class="lname" data-en="Sensor Layer" data-id="Lapisan Sensor">Sensor Layer</span>
       <span class="ldesc" data-en="Fiber Optic DAS · position · weight · black ice · micro-crack"
@@ -92,7 +93,7 @@
     </div>
 
     <!-- Layer 5: Energy Harvest -->
-    <div class="layer l4" style="top:80%;height:20%" onclick="selectLayer(4)">
+    <div class="layer l4" style="top:64%;height:17%" onclick="selectLayer(4)">
       <span class="lnum">⑤</span><div class="pulse teal"></div>
       <span class="lname" data-en="Energy Harvest Layer" data-id="Lapisan Panen Energi">Energy Harvest Layer</span>
       <span class="ldesc" data-en="TEG · Piezoelectric · Charges thermal SSB battery reserve"
@@ -100,8 +101,19 @@
         TEG · Piezoelectric · Charges thermal SSB battery reserve</span>
       <span class="lbadge">Energy Harvest</span>
     </div>
+    <!-- Layer 6: Structural Aggregate Base (NEW) -->
+  <div class="layer l-aggregate" style="top:81%;height:19%; padding-top:4px; background: #1a1a0a; border-top: 1px dashed #5a5a3a; cursor: pointer;" onclick="selectLayer(5)">
+    <span class="lnum">⑥</span>
+    <span class="lname" style="color:#c0c080" data-en="Structural Aggregate Base" data-id="Pondasi Agregat Struktural">
+      Structural Aggregate Base
+    </span>
+    <span class="ldesc" data-en="Crushed stone base · Load distribution · Drainage layer"
+          data-id="Pondasi batu pecah · Distribusi beban · Lapisan drainase">
+      Crushed stone base · Load distribution · Drainage layer
+    </span>
+    <span class="lbadge" style="color:#c0c080; border-color:#5a5a3a; background:#1a1a0a;">Foundation</span>
   </div>
-
+  </div>
   <div id="layer-detail">
     <p style="font-size:13px;color:var(--muted)"
        data-en="← Select a layer above to view technical specifications"
@@ -110,7 +122,244 @@
     </p>
   </div>
 </div>
+<div id="p-challenges" class="panel">
+  <h2 data-en="⚡ Technical Challenges & Solutions" data-id="⚡ Hambatan Teknis & Solusi">⚡ Technical Challenges & Solutions</h2>
 
+  <div class="ch-intro" data-en="Smart Asphalt is not anti-interference — it is interference-resistant and even turns interference into advantage. Click each layer to expand its specific challenges and engineering solutions."
+       data-id="Smart Asphalt bukan anti-gangguan — melainkan tahan gangguan dan bahkan mengubah gangguan menjadi keuntungan. Klik tiap lapisan untuk melihat hambatan spesifik dan solusinya.">
+    Smart Asphalt is not anti-interference — it is <b style="color:var(--accent2)">interference-resistant</b> and even turns interference into advantage. Click each layer to expand its specific challenges and engineering solutions.
+  </div>
+
+  <div class="ch-grid">
+
+    <!-- L1 Surface -->
+    <div class="ch-card" id="chc-0">
+      <div class="ch-header" onclick="toggleCh(0)">
+        <span class="ch-layer-badge" style="background:rgba(58,122,255,.15);color:#7ab0ff;border:1px solid rgba(58,122,255,.3)">L1</span>
+        <span class="ch-title" data-en="Surface Layer — Bio-Asphalt & Agile Upgrade" data-id="Lapisan Permukaan — Bio-Asphalt & Agile Upgrade">Surface Layer — Bio-Asphalt &amp; Agile Upgrade</span>
+        <span class="ch-chevron" id="chv-0">▼</span>
+      </div>
+      <div class="ch-body" id="chb-0">
+        <div class="ch-cols">
+          <div class="ch-box hamb">
+            <div class="ch-box-title">⚠ Hambatan</div>
+            <ul class="ch-list">
+              <li class="danger" data-en="Bio-asphalt pure prone to deformation in tropical climate (heavy rain + extreme heat)" data-id="Bio-asphalt murni rentan deformasi di iklim tropis (hujan deras + panas ekstrem)">Bio-asphalt murni rentan deformasi di iklim tropis (hujan deras + panas ekstrem)</li>
+              <li class="danger" data-en="Compatibility with fiber DAS & TEG modules not yet tested at large scale" data-id="Kompatibilitas dengan fiber DAS & modul TEG belum teruji skala besar">Kompatibilitas dengan fiber DAS &amp; modul TEG belum teruji skala besar</li>
+              <li class="danger" data-en="No long-term field data for composite layer durability" data-id="Belum ada data lapangan jangka panjang untuk durabilitas lapisan komposit">Belum ada data lapangan jangka panjang untuk durabilitas lapisan komposit</li>
+            </ul>
+          </div>
+          <div class="ch-box sol">
+            <div class="ch-box-title">✓ Solusi</div>
+            <ul class="ch-list">
+              <li class="ok" data-en="Hybrid bio-asphalt: 30–50% bio-binder + polymer modifier (tested in Netherlands & India)" data-id="Hybrid bio-asphalt: 30–50% bio-binder + polymer modifier (teruji di Belanda & India)">Hybrid bio-asphalt: 30–50% bio-binder + polymer modifier (teruji di Belanda &amp; India)</li>
+              <li class="ok" data-en="LEGO modular design — surface replaceable without dismantling lower layers" data-id="Desain modular LEGO — surface bisa diganti tanpa bongkar layer bawah">Desain modular LEGO — surface bisa diganti tanpa bongkar layer bawah</li>
+              <li class="ok" data-en="Agile = iterative upgrade per road segment, not full replacement" data-id="Agile = upgrade iteratif per segmen jalan, bukan ganti total">Agile = upgrade iteratif per segmen jalan, bukan ganti total</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L2 Thermal -->
+    <div class="ch-card" id="chc-1">
+      <div class="ch-header" onclick="toggleCh(1)">
+        <span class="ch-layer-badge" style="background:rgba(255,85,102,.12);color:#ff8899;border:1px solid rgba(255,85,102,.3)">L2</span>
+        <span class="ch-title" data-en="Thermal Regulation — TEG & ΔT Stability" data-id="Regulasi Termal — TEG & Stabilitas ΔT">Thermal Regulation — TEG &amp; ΔT Stability</span>
+        <span class="ch-chevron" id="chv-1">▼</span>
+      </div>
+      <div class="ch-body" id="chb-1">
+        <div class="ch-cols">
+          <div class="ch-box hamb">
+            <div class="ch-box-title">⚠ Hambatan</div>
+            <ul class="ch-list">
+              <li class="danger">TEG butuh ΔT <em>stabil</em> — tapi suhu aspal fluktuasi 30–40°C/hari</li>
+              <li class="danger">Thermal cycling harian menyebabkan solder joint fatigue jangka panjang</li>
+              <li class="danger">Panas bisa "bocor" ke layer lain yang tidak membutuhkan</li>
+            </ul>
+          </div>
+          <div class="ch-box sol">
+            <div class="ch-box-title">✓ Solusi</div>
+            <ul class="ch-list">
+              <li class="ok"><b>Phase-Change Material (PCM)</b> sebagai buffer termal — menstabilkan ΔT</li>
+              <li class="ok">Graphene/CNT coating: konduktor termal efisien, salurkan panas langsung ke hot-side TEG</li>
+              <li class="ok">Isolator termal di bawah TEG: cegah bocor, maksimalkan ΔT</li>
+              <li class="ok">Sensor mikro untuk monitoring degradasi solder joint secara real-time</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L3 DWPT + EMI -->
+    <div class="ch-card" id="chc-2">
+      <div class="ch-header" onclick="toggleCh(2)">
+        <span class="ch-layer-badge" style="background:rgba(240,160,32,.12);color:#f0c060;border:1px solid rgba(240,160,32,.3)">L3</span>
+        <span class="ch-title" data-en="DWPT — EMI & Synchronisation" data-id="DWPT — EMI & Sinkronisasi">DWPT — EMI &amp; Synchronisation</span>
+        <span class="ch-chevron" id="chv-2">▼</span>
+      </div>
+      <div class="ch-body" id="chb-2">
+        <div class="ch-cols">
+          <div class="ch-box hamb">
+            <div class="ch-box-title">⚠ Hambatan</div>
+            <ul class="ch-list">
+              <li class="danger">Koil 85 kHz menghasilkan medan EM kuat — potensi noise pada elektronik non-fiber</li>
+              <li class="danger">Butuh sinkronisasi real-time dengan kendaraan (latency &lt;10ms)</li>
+              <li class="danger">Efisiensi transfer turun jika posisi kendaraan tidak presisi di atas koil</li>
+            </ul>
+          </div>
+          <div class="ch-box sol">
+            <div class="ch-box-title">✓ Solusi</div>
+            <ul class="ch-list">
+              <li class="ok">DAS (fiber optik) imun EMI secara fundamental — sinyal adalah cahaya, bukan listrik</li>
+              <li class="ok">Sangkar Faraday mini untuk komponen elektronik non-fiber</li>
+              <li class="ok">Protokol V2I berbasis 5G/edge untuk sinkronisasi latensi rendah</li>
+              <li class="ok">Segmented track: koil hanya aktif tepat di bawah kendaraan</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ch-box emi" style="margin-top:10px">
+          <div class="ch-box-title">💡 Kenapa DAS Aman dari EMI</div>
+          <p style="font-size:12px;color:var(--text2);line-height:1.65">Fiber optik membawa sinyal cahaya di dalam kabel kaca, bukan arus listrik. Medan magnet dari koil DWPT tidak dapat menginduksi noise pada foton. Sama seperti kabel serat optik bawah laut tidak terganggu oleh petir — ini adalah keunggulan inheren yang membuat DAS dan DWPT bisa hidup berdampingan sempurna.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- L4 DAS Sensor -->
+    <div class="ch-card" id="chc-3">
+      <div class="ch-header" onclick="toggleCh(3)">
+        <span class="ch-layer-badge" style="background:rgba(48,192,128,.12);color:#60d090;border:1px solid rgba(48,192,128,.3)">L4</span>
+        <span class="ch-title" data-en="DAS Sensor — Fiber Fragility & Data Volume" data-id="Sensor DAS — Kerentanan Fiber & Volume Data">DAS Sensor — Fiber Fragility &amp; Data Volume</span>
+        <span class="ch-chevron" id="chv-3">▼</span>
+      </div>
+      <div class="ch-body" id="chb-3">
+        <div class="ch-cols">
+          <div class="ch-box hamb">
+            <div class="ch-box-title">⚠ Hambatan</div>
+            <ul class="ch-list">
+              <li class="danger">Fiber optik rentan retak saat aspal crack — titik keretakan kritis</li>
+              <li class="danger">Butuh power stabil untuk interrogator DAS, sementara output TEG/piezo fluktuatif</li>
+              <li class="danger">Volume data akustik sangat besar → beban komputasi tinggi</li>
+              <li class="danger">"Noise" lalu lintas harus dibedakan dari sinyal penting (retakan, kecelakaan)</li>
+            </ul>
+          </div>
+          <div class="ch-box sol">
+            <div class="ch-box-title">✓ Solusi</div>
+            <ul class="ch-list">
+              <li class="ok">Rute fiber di conduit fleksibel dalam lapisan struktural — bukan di aspal langsung</li>
+              <li class="ok">Edge AI per segmen: pre-filtering data sebelum dikirim ke cloud</li>
+              <li class="ok"><b>Self-supervised learning</b>: AI terus belajar membedakan pola getaran truk, motor, retakan mikro, langkah kaki</li>
+              <li class="ok">Supercapacitor sebagai buffer power untuk interrogator DAS</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ch-box sol" style="margin-top:10px">
+          <div class="ch-box-title">🧠 Getaran = Data, Bukan Gangguan</div>
+          <p style="font-size:12px;color:var(--text2);line-height:1.65">Interferensi getaran dari kendaraan adalah sinyal utama bagi DAS dan sumber energi bagi Piezoelektrik. AI pada sistem DAS dilatih untuk mengubah "noise" menjadi intelijen: pola getaran truk berbeda dengan retakan mikro, yang berbeda lagi dengan langkah kaki pejalan kaki. <b style="color:var(--accent2)">Kebisingan yang tidak diinginkan diredam, sinyal penting diperkuat</b>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- L5 Energy Harvest -->
+    <div class="ch-card" id="chc-4">
+      <div class="ch-header" onclick="toggleCh(4)">
+        <span class="ch-layer-badge" style="background:rgba(32,184,192,.12);color:#40d0d8;border:1px solid rgba(32,184,192,.3)">L5</span>
+        <span class="ch-title" data-en="Energy Harvest — Piezo & TEG Efficiency" data-id="Panen Energi — Efisiensi Piezo & TEG">Energy Harvest — Piezo &amp; TEG Efficiency</span>
+        <span class="ch-chevron" id="chv-4">▼</span>
+      </div>
+      <div class="ch-body" id="chb-4">
+        <div class="ch-cols">
+          <div class="ch-box hamb">
+            <div class="ch-box-title">⚠ Hambatan</div>
+            <ul class="ch-list">
+              <li class="danger">Output piezo sangat bergantung volume lalu lintas — tidak stabil di pedesaan</li>
+              <li class="danger">Material piezo (PZT) mengandung timbal → masalah lingkungan</li>
+              <li class="danger">Efisiensi konversi masih rendah (~5–15%)</li>
+              <li class="danger">Solder joint fatigue dari thermal cycling harian pada modul TEG</li>
+            </ul>
+          </div>
+          <div class="ch-box sol">
+            <div class="ch-box-title">✓ Solusi</div>
+            <ul class="ch-list">
+              <li class="ok">Supercapacitor + SSB sebagai buffer energi — stabilkan output</li>
+              <li class="ok"><b>PVDF (lead-free piezo)</b> sebagai alternatif ramah lingkungan</li>
+              <li class="ok">Enkapsulasi modul dalam housing tahan getaran &amp; korosi</li>
+              <li class="ok">Di pedesaan: prioritaskan TEG (sinar matahari) daripada piezo (lalu lintas rendah)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L6 Structural -->
+    <div class="ch-card" id="chc-5">
+      <div class="ch-header" onclick="toggleCh(5)">
+        <span class="ch-layer-badge" style="background:rgba(192,192,128,.12);color:#c0c080;border:1px solid rgba(192,192,128,.3)">L6</span>
+        <span class="ch-title" data-en="Structural Base — Maintenance & Modularity" data-id="Pondasi Struktural — Perawatan & Modularitas">Structural Base — Maintenance &amp; Modularity</span>
+        <span class="ch-chevron" id="chv-5">▼</span>
+      </div>
+      <div class="ch-body" id="chb-5">
+        <div class="ch-cols">
+          <div class="ch-box hamb">
+            <div class="ch-box-title">⚠ Hambatan</div>
+            <ul class="ch-list">
+              <li class="danger">Jika ada perbaikan infrastruktur bawah (pipa, kabel), sistem berpotensi terbongkar total</li>
+              <li class="danger">Tidak ada teknisi yang terlatih untuk servis sistem 6-layer se-kompleks ini</li>
+              <li class="danger">Desain monolitik = bencana saat maintenance</li>
+              <li class="danger">Korosi dari air tanah mengancam modul DWPT &amp; TEG dalam jangka panjang</li>
+            </ul>
+          </div>
+          <div class="ch-box sol">
+            <div class="ch-box-title">✓ Solusi</div>
+            <ul class="ch-list">
+              <li class="ok"><b>Segmen modular prefabrikasi</b> 1–2m — bisa dibongkar independen seperti LEGO</li>
+              <li class="ok">Conduit terstandarisasi untuk semua kabel/fiber — akses tanpa bongkar aspal</li>
+              <li class="ok">Standar terbuka agar vendor berbeda bisa interoperabel</li>
+              <li class="ok">Drainase terintegrasi + coating anti-korosi pada semua modul elektronik</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end ch-grid -->
+
+  <!-- System Integration -->
+  <div class="sys-banner">
+    <div class="sys-banner-title"><span>🔗</span> Hambatan Lintas-Layer: System Integration</div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px"
+       data-en="The biggest challenge is not within a single layer, but between layers — energy management, communication protocols, and graceful degradation when one layer fails."
+       data-id="Hambatan terbesar bukan di satu layer, tapi antar layer — manajemen energi, protokol komunikasi, dan degradasi graceful saat satu layer gagal.">
+      Hambatan terbesar bukan di satu layer, tapi <b style="color:var(--accent)">antar layer</b> — manajemen energi, protokol komunikasi, dan graceful degradation saat satu layer gagal.
+    </p>
+    <div class="ch-cols">
+      <div class="ch-box hamb">
+        <div class="ch-box-title">⚠ Tantangan Utama</div>
+        <ul class="ch-list">
+          <li class="danger">Power budget: siapa supply siapa? TEG & piezo output kecil & fluktuatif, tapi DAS & DWPT butuh power stabil</li>
+          <li class="danger">Kalau satu layer mati — sistem kolaps atau degradasi graceful?</li>
+          <li class="danger">Protokol komunikasi antar layer belum ada standar industri</li>
+        </ul>
+      </div>
+      <div class="ch-box sol">
+        <div class="ch-box-title">✓ Edge AI sebagai Orkestrator</div>
+        <ul class="ch-list">
+          <li class="ok">Setiap segmen jalan punya <b>edge node</b> yang mengatur energi lokal, filtering DAS, dan handshake DWPT</li>
+          <li class="ok">Tanpa bergantung cloud — latensi rendah, resiliensi tinggi</li>
+          <li class="ok">Jika satu layer gagal: sistem degradasi graceful, edge node reroute ke kapasitas yang tersisa</li>
+        </ul>
+      </div>
+    </div>
+    <button class="edge-ai-btn" onclick="showPanel('layers', document.querySelector('.tab'))">← Lihat Arsitektur Layer</button>
+  </div>
+
+  <!-- Rural Note -->
+  <div class="rural-note">
+    <b>🌿 Rekomendasi untuk Pedesaan:</b><br>
+    Prioritaskan <b>L1 hybrid bio-asphalt</b> + <b>L4 DAS</b> (structural health monitoring) + <b>L6 modular base</b>. Skip DWPT dulu — infrastruktur EV belum ada. TEG bisa jadi tambahan jika intensitas sinar matahari tinggi. Bio-asphalt dari limbah CPO atau sekam padi sangat relevan untuk konteks Indonesia.
+  </div>
+
+</div>
 <!-- DWPT SIM v3 -->
 <div id="p-sim" class="panel">
   <h2 data-en="DWPT Live Simulation — Dynamic Wireless Power Transfer" data-id="Simulasi DWPT Langsung — Transfer Daya Nirkabel Dinamis">DWPT Live Simulation — Dynamic Wireless Power Transfer</h2>
@@ -355,7 +604,7 @@ const layerInfoData = [
   },
   // ★ NEW LAYER
   {
-    en:'② Thermal Regulation Layer ★ NEW', id:'② Lapisan Regulasi Termal ★ BARU',
+    en:'② Thermal Regulation Layer', id:'② Lapisan Regulasi Termal',
     items:{
       en:['Graphene-PTC / steel heating mesh for active de-icing',
           'Black ice & frost detection via DAS + surface temp sensor fusion',
@@ -407,7 +656,20 @@ const layerInfoData = [
           'Mengisi baterai solid-state Lapisan Termal sebagai cadangan energi de-icing',
           'Jalan sebagai prosumer energi aktif yang menyuplai mikrogrid lokal']
     }
+  },
+  {
+  en:'⑥ Structural Aggregate Base', id:'⑥ Pondasi Agregat Struktural',
+  items:{
+    en:['High-quality crushed stone aggregate (e.g., granite, andesite)',
+        'Distributes vehicle loads to subgrade, prevents rutting & deformation',
+        'Provides level platform for DWPT coils & TEG modules',
+        'Integrated drainage channels to prevent water accumulation'],
+    id:['Agregat batu pecah berkualitas tinggi (granit, andesit)',
+        'Mendistribusikan beban kendaraan ke tanah dasar, mencegah amblas',
+        'Menyediakan platform rata untuk koil DWPT & modul TEG',
+        'Saluran drainase terintegrasi mencegah genangan air']
   }
+}
 ];
 function selectLayer(i) {
   document.querySelectorAll('.layer').forEach((l,j) => { l.classList.remove('hi'); if(j===i) l.classList.add('hi'); });
@@ -674,6 +936,21 @@ function startDAS() {
     requestAnimationFrame(draw);
   }
   draw();
+}
+// ── CHALLENGES ACCORDION ──────────────────────────────────────────────────────
+function toggleCh(i) {
+  const body = document.getElementById('chb-' + i);
+  const chev = document.getElementById('chv-' + i);
+  const isOpen = body.classList.contains('open');
+  // close all
+  for(let j=0;j<6;j++){
+    document.getElementById('chb-'+j).classList.remove('open');
+    document.getElementById('chv-'+j).classList.remove('open');
+  }
+  if (!isOpen) {
+    body.classList.add('open');
+    chev.classList.add('open');
+  }
 }
 
 // ── TEG ───────────────────────────────────────────────────────────────────────
